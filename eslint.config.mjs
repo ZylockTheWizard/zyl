@@ -7,27 +7,28 @@ import stylistic from '@stylistic/eslint-plugin'
 
 /** @type {import('eslint').Linter.Config[]} */
 export default [
-  {files: ["src/**/*.{js,mjs,cjs,ts,jsx,tsx}"]},
-  {languageOptions: { globals: globals.browser }},
-  pluginJs.configs.recommended,
-  ...tseslint.configs.recommended,
-  pluginReact.configs.flat.recommended,
-  {
-    "settings": {
-      "react": {
-        "version": "detect"
-      }
+    {files: ["src/**/*.{js,mjs,cjs,ts,jsx,tsx}"]},
+    {languageOptions: { globals: globals.browser }},
+    pluginJs.configs.recommended,
+    ...tseslint.configs.recommended,
+    pluginReact.configs.flat.recommended,
+    {
+        "settings": {
+            "react": {
+                "version": "detect"
+            }
+        }
+    },
+    {
+        plugins: {
+            '@stylistic': stylistic
+        }
+    },
+    {
+        rules: {
+            '@stylistic/indent': ['error', 4],
+            '@stylistic/semi': ['error', 'never'],
+            '@stylistic/max-len': ["error", { "code": 100 }]
+        }
     }
-  },
-  {
-    plugins: {
-      '@stylistic': stylistic
-    }
-  },
-  {
-    rules: {
-      '@stylistic/indent': ['error', 2],
-      '@stylistic/semi': ['error', 'never'],
-    }
-  }
 ]
