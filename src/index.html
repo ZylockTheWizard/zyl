@@ -5,15 +5,12 @@
     <!-- https://developer.mozilla.org/en-US/docs/Web/HTTP/CSP -->
     <meta
       http-equiv="Content-Security-Policy"
-      content="default-src 'self' 'unsafe-inline'; script-src 'self' 'unsafe-eval'"
+      content="default-src 'self' 'unsafe-inline'; script-src 'self' 'unsafe-eval';connect-src self * 'unsafe-inline'"
     />
     <meta
       http-equiv="X-Content-Security-Policy"
-      content="default-src 'self' 'unsafe-inline'; script-src 'self' 'unsafe-eval'"
+      content="default-src 'self' 'unsafe-inline'; script-src 'self' 'unsafe-eval'; connect-src self * 'unsafe-inline'"
     />
   </head>
-  <body>
-    <h1>💖 Hello World!</h1>
-    <p>Welcome to your Electron application.</p>
-  </body>
+  <body></body>
 </html>

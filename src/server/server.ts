@@ -9,6 +9,7 @@ import {
     MenuItemConstructorOptions,
     MessageBoxSyncOptions 
 } from 'electron'
+import { io } from "socket.io-client"
 
 class ServerEvents
 {
@@ -74,7 +75,7 @@ export class Server
 {
     static start(html: string, preload: string)
     {
-    // eslint-disable-next-line @typescript-eslint/no-require-imports
+        // eslint-disable-next-line @typescript-eslint/no-require-imports
         if (require('electron-squirrel-startup')) app.quit()
 
         if(!app.requestSingleInstanceLock()) app.quit()
@@ -112,5 +113,13 @@ export class Server
         ServerEvents.Register()
 
         app.whenReady().then(createWindow)
+
+        const socket = io("http://174.50.225.10:3001/")
+        console.log('hellow world')
+        socket.on("connect", () => {
+            console.log(socket.id)
+            socket.emit("login", {id: "Cory", password: ""}, (val: string) => {console.log(val)})
+        })
+    
     }
 }
