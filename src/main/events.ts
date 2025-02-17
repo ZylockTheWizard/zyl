@@ -7,22 +7,27 @@ import {
     MenuItemConstructorOptions,
     MessageBoxSyncOptions 
 } from 'electron'
-import { io } from 'socket.io-client'
+import { io, Socket } from 'socket.io-client'
 import { Logger } from './logger'
+import { userQuery } from './querys'
+
+type LoginData = {
+    url: string
+    user: string
+    password: string
+}
 
 export class MainEvents
 {
+    private static socket: Socket
+
     static register()
     {
         ipcMain.on('show-alert', this.onShowAlert)
         ipcMain.on('show-confirm', this.onShowConfirm)
         ipcMain.on('show-context-menu', this.onShowContextMenu)
 
-        const socket = io('http://174.50.225.10:3001/')
-        socket.on('connect', () => {
-            Logger.log(socket.id)
-            socket.emit('login', {id: 'Cory', password: ''}, (val: string) => {Logger.log(val)})
-        })
+        ipcMain.on('login', this.onLogin)
     }
 
     private static onShowContextMenu(event: IpcMainEvent, mouseX: number, mouseY: number)
@@ -72,5 +77,18 @@ export class MainEvents
             message
         }
         event.returnValue = dialog.showMessageBoxSync(eventBrowserWindow, confirmOptions)
+    }
+
+    private static async onLogin(event: IpcMainEvent, data: LoginData) 
+    {
+        Logger.log({data})
+        this.socket = io('http://localhost:3001')
+        this.socket.on('connect', () => {
+            Logger.log(this.socket.id)
+            this.socket.emit('query', userQuery(data.user), (val: any) => {
+                Logger.log({val})
+                event.reply('login-callback', val)
+            })
+        })
     }
 }

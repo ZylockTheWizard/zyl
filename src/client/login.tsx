@@ -1,27 +1,69 @@
 import React from 'react'
+//import { useNavigate } from 'react-router'
+import { FieldError, SubmitHandler, useForm } from 'react-hook-form'
 import { 
     Box, 
     Button, 
     Card, 
     FormControl, 
-    FormLabel, 
     Stack, 
     TextField, 
+    TextFieldVariants, 
     Typography 
 } from '@mui/material'
 
+type LoginForm = {
+    url: string
+    user: string
+    password: string
+}
+
 export const Login = () => {
     const cardStyles: React.CSSProperties = {
+        gap: 20,
+        width: '300px',
         display: 'flex',
-        flexDirection: 'column',
-        alignSelf: 'center',
         padding: '32px',
-        gap: 20
+        alignSelf: 'center',
+        flexDirection: 'column'
     }
 
     const stackStyles: React.CSSProperties = {
         padding: '16px',
-        marginTop: '100px'
+        justifyContent: 'center'
+    }
+
+    //const navigate = useNavigate()
+    const { register, handleSubmit, formState } = useForm<LoginForm>()
+    const { errors } = formState
+
+    const onSubmit: SubmitHandler<LoginForm> = (data: LoginForm) => {
+        console.log({data})
+        window.ipcRenderer.on('login-callback', (_event: any, val: any) => {
+            console.log({val})
+        })
+        window.ipcRenderer.send('login', data)
+        //navigate('/chat')
+    }
+
+    const fieldProps = (label: string, field: string, error: FieldError) => {
+        const registerOptions = {
+            required: label + ' is required',
+            maxLength: {
+                value: 255,
+                message: label + ' cannot be greater than 255 characters'
+            }
+        }
+        return {
+            label,
+            id: field,
+            name: field,
+            error: !!error,
+            fullWidth: true,
+            helperText: error?.message,
+            variant: 'outlined' as TextFieldVariants,
+            ...register(field as any, registerOptions)
+        }
     }
 
     return (
@@ -34,12 +76,13 @@ export const Login = () => {
                 <Typography
                     component="h1"
                     variant="h4"
-                    sx={{ width: '100%', fontSize: 'clamp(2rem, 10vw, 2.15rem)' }}
+                    sx={{ width: '100%', fontSize: '34px' }}
                 >
                     Sign in
                 </Typography>
                 <Box
                     component="form"
+                    onSubmit={handleSubmit(onSubmit)}
                     noValidate
                     sx={{
                         display: 'flex',
@@ -49,26 +92,17 @@ export const Login = () => {
                     }}
                 >
                     <FormControl>
-                        <FormLabel htmlFor="user">User</FormLabel>
-                        <TextField
-                            id="user"
-                            name="user"
-                            autoFocus
-                            fullWidth
-                            variant="outlined"
-                        />
+                        <TextField autoFocus {...fieldProps('URL', 'url', errors.url)} />
                     </FormControl>
                     <FormControl>
-                        <FormLabel htmlFor="password">Password</FormLabel>
-                        <TextField
-                            name="password"
-                            type="password"
-                            id="password"
-                            fullWidth
-                            variant="outlined"
-                        />
+                        <TextField {...fieldProps('User', 'user', errors.user)} />
                     </FormControl>
-                    <Button fullWidth variant="contained">
+                    <FormControl>
+                        <TextField type="password" {
+                            ...fieldProps('Password', 'password', errors.password)
+                        } />
+                    </FormControl>
+                    <Button type="submit" fullWidth variant="contained">
                         Sign in
                     </Button>
                 </Box>

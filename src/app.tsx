@@ -5,11 +5,22 @@ import { Login } from './client/login'
 import { Chat } from './client/chat'
 import { createTheme, CssBaseline, ThemeProvider } from '@mui/material'
 
+declare global {
+    interface Document {
+        getElementById<T extends HTMLElement>(id: string): T | null;
+    }
+    interface Window {
+        ipcRenderer: Electron.IpcRenderer
+    }
+}
+
 const { ipcRenderer } = window.require('electron')
-window.alert = (message: string) => ipcRenderer.send('show-alert', message)
-window.confirm = (message: string) => ipcRenderer.sendSync('show-confirm', message)
+window.ipcRenderer = ipcRenderer
+
+window.alert = (message: string) => window.ipcRenderer.send('show-alert', message)
+window.confirm = (message: string) => window.ipcRenderer.sendSync('show-confirm', message)
 window.addEventListener('contextmenu', (event: MouseEvent) => {
-    ipcRenderer.send('show-context-menu', event.x, event.y)
+    window.ipcRenderer.send('show-context-menu', event.x, event.y)
 })
 
 const darkTheme = createTheme({palette: {mode: 'dark'}})
