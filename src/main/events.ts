@@ -19,10 +19,25 @@ type LoginData = {
 
 export class MainEvents
 {
+    private static mainWindow: BrowserWindow
     private static socket: Socket
 
-    static register()
+    static register(window: BrowserWindow)
     {
+        this.mainWindow = window
+
+        this.socket = io('https://zyl-server-7j10.onrender.com')
+        this.socket.on('connect_error', (err) => {
+            const message = 'Failed to connect to the server'
+            Logger.error(message)
+            Logger.error(err.message + ' - ' + err.name)
+            this.mainWindow.webContents.send('server-status', {status: 'error', error: message})
+        })
+        this.socket.on('connect', () => {
+            Logger.log(this.socket.id)
+            this.mainWindow.webContents.send('server-status', {status: 'connected'})
+        })
+        
         ipcMain.on('show-alert', this.onShowAlert)
         ipcMain.on('show-confirm', this.onShowConfirm)
         ipcMain.on('show-context-menu', this.onShowContextMenu)
@@ -79,16 +94,15 @@ export class MainEvents
         event.returnValue = dialog.showMessageBoxSync(eventBrowserWindow, confirmOptions)
     }
 
-    private static async onLogin(event: IpcMainEvent, data: LoginData) 
-    {
+    private static query = (q: string, callback: (val: any) => void) => {
+        this.socket.emit('query', q, callback)
+    }
+
+    private static onLogin =(event: IpcMainEvent, data: LoginData) => {
         Logger.log({data})
-        this.socket = io('http://localhost:3001')
-        this.socket.on('connect', () => {
-            Logger.log(this.socket.id)
-            this.socket.emit('query', userQuery(data.user), (val: any) => {
-                Logger.log({val})
-                event.reply('login-callback', val)
-            })
+        this.query(userQuery(data.user), (val: any) => {
+            Logger.log({val})
+            event.reply('login-callback', val)
         })
     }
 }

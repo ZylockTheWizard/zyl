@@ -31,6 +31,7 @@ export class Main
         this.mainWindowOptions.webPreferences.preload = preload
         this.mainWindow = new BrowserWindow(this.mainWindowOptions)
         this.mainWindow.loadURL(html)
+        MainEvents.register(this.mainWindow)
         if(process.argv.length > 2 && process.argv[2] === 'dev')
             this.mainWindow.webContents.openDevTools()
     }
@@ -44,8 +45,6 @@ export class Main
 
         app.on('second-instance', this.onAppSecondInstance)
         app.on('window-all-closed', this.onWindowAllClosed)
-
-        MainEvents.register()
 
         app.whenReady().then(() => this.createWindow(html, preload))
     }

@@ -2,9 +2,11 @@ import React from 'react'
 //import { useNavigate } from 'react-router'
 import { FieldError, SubmitHandler, useForm } from 'react-hook-form'
 import { 
+    Alert,
     Box, 
     Button, 
     Card, 
+    CircularProgress, 
     FormControl, 
     Stack, 
     TextField, 
@@ -13,7 +15,6 @@ import {
 } from '@mui/material'
 
 type LoginForm = {
-    url: string
     user: string
     password: string
 }
@@ -21,7 +22,7 @@ type LoginForm = {
 export const Login = () => {
     const cardStyles: React.CSSProperties = {
         gap: 20,
-        width: '300px',
+        width: '390px',
         display: 'flex',
         padding: '32px',
         alignSelf: 'center',
@@ -29,6 +30,7 @@ export const Login = () => {
     }
 
     const stackStyles: React.CSSProperties = {
+        height: '80%',
         padding: '16px',
         justifyContent: 'center'
     }
@@ -37,14 +39,22 @@ export const Login = () => {
     const { register, handleSubmit, formState } = useForm<LoginForm>()
     const { errors } = formState
 
+    const [errorMessage, setErrorMessage] = React.useState('')
+    const [loading, setLoading] = React.useState(false)
+
     const onSubmit: SubmitHandler<LoginForm> = (data: LoginForm) => {
         console.log({data})
-        window.ipcRenderer.on('login-callback', (_event: any, val: any) => {
-            console.log({val})
-        })
+        setLoading(true)
         window.ipcRenderer.send('login', data)
         //navigate('/chat')
     }
+
+    window.register('login-callback', (_event: any, val: any) => {
+        setLoading(false)
+        console.log({val})
+        setErrorMessage('Server Error: database is not connected')
+        if(val.error) setErrorMessage(val.error)
+    })
 
     const fieldProps = (label: string, field: string, error: FieldError) => {
         const registerOptions = {
@@ -60,9 +70,10 @@ export const Login = () => {
             name: field,
             error: !!error,
             fullWidth: true,
+            disabled: loading,
             helperText: error?.message,
             variant: 'outlined' as TextFieldVariants,
-            ...register(field as any, registerOptions)
+            ...register(field as any, registerOptions),
         }
     }
 
@@ -85,26 +96,24 @@ export const Login = () => {
                     onSubmit={handleSubmit(onSubmit)}
                     noValidate
                     sx={{
-                        display: 'flex',
-                        flexDirection: 'column',
-                        width: '100%',
                         gap: 4,
+                        width: '100%',
+                        display: 'flex',
+                        flexDirection: 'column'
                     }}
                 >
                     <FormControl>
-                        <TextField autoFocus {...fieldProps('URL', 'url', errors.url)} />
-                    </FormControl>
-                    <FormControl>
-                        <TextField {...fieldProps('User', 'user', errors.user)} />
+                        <TextField autoFocus {...fieldProps('User', 'user', errors.user)} />
                     </FormControl>
                     <FormControl>
                         <TextField type="password" {
                             ...fieldProps('Password', 'password', errors.password)
-                        } />
+                        }/>
                     </FormControl>
-                    <Button type="submit" fullWidth variant="contained">
-                        Sign in
+                    <Button type="submit" fullWidth variant="contained" disabled={loading}>
+                        {loading ? <CircularProgress size={25} /> : 'Sign in'}
                     </Button>
+                    {errorMessage && <Alert variant="filled" severity="error">{errorMessage}</Alert>}
                 </Box>
             </Card>
         </Stack>
