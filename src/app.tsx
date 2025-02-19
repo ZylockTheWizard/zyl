@@ -9,15 +9,15 @@ import { Overlay } from './client/overlay'
 declare global {
     interface Window {
         ipcRenderer: Electron.IpcRenderer
-        register: (channel: string, callback: ((event: Electron.IpcRendererEvent, ...args: any[]) => void)) => void
+        register: (channel: string, callback: (event: Electron.IpcRendererEvent, ...args: any[]) => void) => void
     }
     interface Document {
-        getElementById<T extends HTMLElement>(id: string): T | null;
+        getElementById<T extends HTMLElement>(id: string): T | null
     }
 }
 
 window.ipcRenderer = window.require('electron').ipcRenderer
-window.register = (channel: string, callback: ((event: Electron.IpcRendererEvent, ...args: any[]) => void)) => {
+window.register = (channel: string, callback: (event: Electron.IpcRendererEvent, ...args: any[]) => void) => {
     window.ipcRenderer.removeAllListeners(channel)
     window.ipcRenderer.on(channel, callback)
 }
@@ -28,9 +28,9 @@ window.addEventListener('contextmenu', (event: MouseEvent) => {
     window.ipcRenderer.send('show-context-menu', event.x, event.y)
 })
 
-const darkTheme = createTheme({palette: {mode: 'dark'}})
+const darkTheme = createTheme({ palette: { mode: 'dark' } })
 
-ReactDOM.createRoot(document.body).render(  
+ReactDOM.createRoot(document.body).render(
     <ThemeProvider theme={darkTheme}>
         <CssBaseline />
         <Overlay />
@@ -40,5 +40,5 @@ ReactDOM.createRoot(document.body).render(
                 <Route path="/chat" element={<Chat />} />
             </Routes>
         </BrowserRouter>
-    </ThemeProvider>
+    </ThemeProvider>,
 )

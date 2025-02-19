@@ -1,8 +1,7 @@
-import { app, BrowserWindow, BrowserWindowConstructorOptions} from 'electron'
+import { app, BrowserWindow, BrowserWindowConstructorOptions } from 'electron'
 import { MainEvents } from './events'
 
-export class Main 
-{
+export class Main {
     static mainWindow: BrowserWindow
     static mainWindowOptions: BrowserWindowConstructorOptions = {
         width: 800,
@@ -12,8 +11,8 @@ export class Main
         autoHideMenuBar: true,
         webPreferences: {
             nodeIntegration: true,
-            contextIsolation: false
-        }
+            contextIsolation: false,
+        },
     }
 
     static onAppSecondInstance = () => {
@@ -23,8 +22,7 @@ export class Main
     }
 
     static onWindowAllClosed = () => {
-        if(process.platform !== 'darwin') 
-            app.quit()
+        if (process.platform !== 'darwin') app.quit()
     }
 
     static createWindow = (html: string, preload: string) => {
@@ -32,16 +30,14 @@ export class Main
         this.mainWindow = new BrowserWindow(this.mainWindowOptions)
         this.mainWindow.loadURL(html)
         MainEvents.register(this.mainWindow)
-        if(process.argv.length > 2 && process.argv[2] === 'dev')
-            this.mainWindow.webContents.openDevTools()
+        if (process.argv.length > 2 && process.argv[2] === 'dev') this.mainWindow.webContents.openDevTools()
     }
 
-    static start(html: string, preload: string)
-    {
+    static start(html: string, preload: string) {
         // eslint-disable-next-line @typescript-eslint/no-require-imports
         if (require('electron-squirrel-startup')) app.quit()
 
-        if(!app.requestSingleInstanceLock()) app.quit()
+        if (!app.requestSingleInstanceLock()) app.quit()
 
         app.on('second-instance', this.onAppSecondInstance)
         app.on('window-all-closed', this.onWindowAllClosed)

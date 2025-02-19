@@ -14,15 +14,10 @@ import { rendererConfig } from './webpack.renderer.config'
 const config: ForgeConfig = {
     packagerConfig: {
         asar: true,
-        icon: 'zyl-icon.ico'
+        icon: 'zyl-icon.ico',
     },
     rebuildConfig: {},
-    makers: [
-        new MakerSquirrel({}), 
-        new MakerZIP({}, ['darwin']), 
-        new MakerRpm({}), 
-        new MakerDeb({})
-    ],
+    makers: [new MakerSquirrel({}), new MakerZIP({}, ['darwin']), new MakerRpm({}), new MakerDeb({})],
     plugins: [
         new AutoUnpackNativesPlugin({}),
         new WebpackPlugin({

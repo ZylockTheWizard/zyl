@@ -1,12 +1,4 @@
-import { 
-    BrowserWindow, 
-    dialog, 
-    ipcMain, 
-    IpcMainEvent, 
-    Menu, 
-    MenuItemConstructorOptions,
-    MessageBoxSyncOptions 
-} from 'electron'
+import { BrowserWindow, dialog, ipcMain, IpcMainEvent, Menu, MenuItemConstructorOptions, MessageBoxSyncOptions } from 'electron'
 import { io, Socket } from 'socket.io-client'
 import { Logger } from './logger'
 import { userQuery } from './querys'
@@ -17,79 +9,75 @@ type LoginData = {
     password: string
 }
 
-export class MainEvents
-{
-    private static mainWindow: BrowserWindow
+export class MainEvents {
     private static socket: Socket
+    private static mainWindow: BrowserWindow
 
-    static register(window: BrowserWindow)
-    {
+    static register(window: BrowserWindow) {
         this.mainWindow = window
 
-        this.socket = io('https://zyl-server-7j10.onrender.com')
-        this.socket.on('connect_error', (err) => {
-            const message = 'Failed to connect to the server'
-            Logger.error(message)
-            Logger.error(err.message + ' - ' + err.name)
-            this.mainWindow.webContents.send('server-status', {status: 'error', error: message})
-        })
-        this.socket.on('connect', () => {
-            Logger.log(this.socket.id)
-            this.mainWindow.webContents.send('server-status', {status: 'connected'})
-        })
-        
+        this.socket = io('http://174.50.225.10:3001')
+        this.socket.on('connect_error', this.onConnectError)
+        this.socket.on('connect', this.onConnect)
+
         ipcMain.on('show-alert', this.onShowAlert)
         ipcMain.on('show-confirm', this.onShowConfirm)
         ipcMain.on('show-context-menu', this.onShowContextMenu)
 
+        ipcMain.on('request-server-status', (event: IpcMainEvent) => (event.returnValue = this.socket.connected))
         ipcMain.on('login', this.onLogin)
     }
 
-    private static onShowContextMenu(event: IpcMainEvent, mouseX: number, mouseY: number)
-    { 
+    private static onConnectError = (err: Error) => {
+        const message = 'Failed to connect to the server'
+        Logger.error(message, err)
+        this.mainWindow.webContents.send('server-status', { status: 'error', error: message })
+    }
+
+    private static onConnect = () => {
+        Logger.log(this.socket.id)
+        this.mainWindow.webContents.send('server-status', { status: 'connected' })
+    }
+
+    private static onShowContextMenu = (event: IpcMainEvent, mouseX: number, mouseY: number) => {
         const eventBrowserWindow = BrowserWindow.fromWebContents(event.sender)
-        const menuItems: MenuItemConstructorOptions[] = 
-        [
+        const menuItems: MenuItemConstructorOptions[] = [
             {
                 label: 'Reload',
-                click: () => eventBrowserWindow.reload()
+                click: () => eventBrowserWindow.reload(),
             },
             {
                 label: 'Exit Program',
-                click: () => eventBrowserWindow.close()
+                click: () => eventBrowserWindow.close(),
             },
             {
                 label: 'Inspect Element',
-                click: () => eventBrowserWindow.webContents.inspectElement(mouseX, mouseY) 
-            }
+                click: () => eventBrowserWindow.webContents.inspectElement(mouseX, mouseY),
+            },
         ]
         Menu.buildFromTemplate(menuItems).popup({ window: eventBrowserWindow })
     }
-    
-    private static onShowAlert(event: IpcMainEvent, message: string)
-    {
+
+    private static onShowAlert = (event: IpcMainEvent, message: string) => {
         const eventBrowserWindow = BrowserWindow.fromWebContents(event.sender)
-        const alertOptions: MessageBoxSyncOptions =
-        {
+        const alertOptions: MessageBoxSyncOptions = {
             title: 'Alert',
             type: 'warning',
             buttons: ['Ok'],
             defaultId: 0,
             cancelId: 0,
-            message
+            message,
         }
         dialog.showMessageBoxSync(eventBrowserWindow, alertOptions)
     }
-    
-    private static onShowConfirm(event: IpcMainEvent, message: string)
-    {
+
+    private static onShowConfirm = (event: IpcMainEvent, message: string) => {
         const eventBrowserWindow = BrowserWindow.fromWebContents(event.sender)
-        const confirmOptions: MessageBoxSyncOptions = 
-        {
+        const confirmOptions: MessageBoxSyncOptions = {
             title: 'Confirm',
             type: 'question',
             buttons: ['Cancel', 'Ok'],
-            message
+            message,
         }
         event.returnValue = dialog.showMessageBoxSync(eventBrowserWindow, confirmOptions)
     }
@@ -98,10 +86,10 @@ export class MainEvents
         this.socket.emit('query', q, callback)
     }
 
-    private static onLogin =(event: IpcMainEvent, data: LoginData) => {
-        Logger.log({data})
+    private static onLogin = (event: IpcMainEvent, data: LoginData) => {
+        Logger.log({ data })
         this.query(userQuery(data.user), (val: any) => {
-            Logger.log({val})
+            Logger.log({ val })
             event.reply('login-callback', val)
         })
     }

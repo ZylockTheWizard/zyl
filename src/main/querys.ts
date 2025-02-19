@@ -1,4 +1,3 @@
-
 export const userQuery = (id: string) => {
     return `
         SELECT * FROM users
