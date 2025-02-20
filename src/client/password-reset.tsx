@@ -4,42 +4,44 @@ import { FieldError, SubmitHandler, useForm } from 'react-hook-form'
 import { Alert, Button, CircularProgress, FormControl, TextField, TextFieldVariants } from '@mui/material'
 import { PageForm } from './shared/page-form'
 
-type LoginForm = {
-    user: string
-    password: string
+type PasswordResetForm = {
+    newPassword: string
+    verifyPassword: string
 }
 
-export const Login = () => {
+export const PasswordReset = () => {
     const navigate = useNavigate()
-    const { register, handleSubmit, formState } = useForm<LoginForm>()
+    const { register, handleSubmit, formState } = useForm<PasswordResetForm>()
     const { errors } = formState
 
     const [errorMessage, setErrorMessage] = React.useState('')
     const [loading, setLoading] = React.useState(false)
 
-    const onSubmit: SubmitHandler<LoginForm> = (data: LoginForm) => {
+    const onSubmit: SubmitHandler<PasswordResetForm> = (data: PasswordResetForm) => {
         console.log({ data })
+        if (data.newPassword !== data.verifyPassword) {
+            setErrorMessage('The passwords do not match')
+            return
+        }
+        const userData = {
+            user: window.userData.user,
+            password: data.newPassword,
+        }
         setLoading(true)
-        window.register('login-callback', (_event: any, val: any) => {
+        window.register('password-reset-callback', (_event: any, val: any) => {
             setLoading(false)
             console.log({ val })
 
             let error = ''
             if (val.error) error = val.error
-            else if (val.length === 0) error = 'User not found'
-            else if (val[0].password !== data.password) error = 'Password is incorrect'
-
-            window.userData.user = val[0].id
-
-            if (val[0].passwordReset === 1) navigate('/password_reset')
+            else if (val.affectedRows !== 1) error = 'Something went wrong'
             else {
-                window.ipcRenderer.send('save-user-data', data)
+                window.ipcRenderer.send('save-user-data', userData)
                 navigate('/chat')
             }
-
             setErrorMessage(error)
         })
-        window.ipcRenderer.send('login', data)
+        window.ipcRenderer.send('password-reset', userData)
     }
 
     const fieldProps = (label: string, field: string, error: FieldError) => {
@@ -64,12 +66,12 @@ export const Login = () => {
     }
 
     return (
-        <PageForm pageTitle="Sign In" onSubmit={handleSubmit(onSubmit)}>
+        <PageForm pageTitle="Password Reset" onSubmit={handleSubmit(onSubmit)}>
             <FormControl>
-                <TextField autoFocus value={window.userData.user} {...fieldProps('User', 'user', errors.user)} />
+                <TextField type="password" {...fieldProps('New Password', 'newPassword', errors.newPassword)} />
             </FormControl>
             <FormControl>
-                <TextField type="password" value={window.userData.password} {...fieldProps('Password', 'password', errors.password)} />
+                <TextField type="password" {...fieldProps('Verify Password', 'verifyPassword', errors.verifyPassword)} />
             </FormControl>
             <Button type="submit" fullWidth variant="contained" disabled={loading}>
                 {loading ? <CircularProgress size={25} /> : 'Sign in'}

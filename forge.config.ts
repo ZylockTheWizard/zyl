@@ -22,6 +22,7 @@ const config: ForgeConfig = {
         new AutoUnpackNativesPlugin({}),
         new WebpackPlugin({
             mainConfig,
+            devContentSecurityPolicy: 'img-src http:',
             renderer: {
                 config: rendererConfig,
                 entryPoints: [

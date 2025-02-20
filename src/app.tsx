@@ -5,9 +5,18 @@ import { Login } from './client/login'
 import { Chat } from './client/chat'
 import { createTheme, CssBaseline, ThemeProvider } from '@mui/material'
 import { Overlay } from './client/overlay'
+import { PasswordReset } from './client/password-reset'
+
+type UserData = {
+    user: string
+    password: string
+    connected: boolean
+    url: string
+}
 
 declare global {
     interface Window {
+        userData: UserData
         ipcRenderer: Electron.IpcRenderer
         register: (channel: string, callback: (event: Electron.IpcRendererEvent, ...args: any[]) => void) => void
     }
@@ -28,6 +37,8 @@ window.addEventListener('contextmenu', (event: MouseEvent) => {
     window.ipcRenderer.send('show-context-menu', event.x, event.y)
 })
 
+window.userData = window.ipcRenderer.sendSync('initial-data')
+
 const darkTheme = createTheme({ palette: { mode: 'dark' } })
 
 ReactDOM.createRoot(document.body).render(
@@ -37,6 +48,7 @@ ReactDOM.createRoot(document.body).render(
         <BrowserRouter>
             <Routes>
                 <Route path="/main_window" element={<Login />} />
+                <Route path="/password_reset" element={<PasswordReset />} />
                 <Route path="/chat" element={<Chat />} />
             </Routes>
         </BrowserRouter>

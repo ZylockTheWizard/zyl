@@ -2,8 +2,7 @@ import React from 'react'
 import { CircularProgress, Stack, Typography } from '@mui/material'
 
 export const Overlay = () => {
-    const initalStatus: boolean = window.ipcRenderer.sendSync('request-server-status')
-    const [connected, setConnected] = React.useState(initalStatus)
+    const [connected, setConnected] = React.useState(window.userData.connected)
     window.register('server-status', (_event: any, val: any) => {
         if (val.status === 'connected') {
             setConnected(true)

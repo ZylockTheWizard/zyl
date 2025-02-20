@@ -1,22 +1,33 @@
-import { BrowserWindow, dialog, ipcMain, IpcMainEvent, Menu, MenuItemConstructorOptions, MessageBoxSyncOptions } from 'electron'
+import fs from 'node:fs'
+import path from 'node:path'
+import { app, BrowserWindow, dialog, ipcMain, IpcMainEvent, Menu, MenuItemConstructorOptions, MessageBoxSyncOptions } from 'electron'
+
 import { io, Socket } from 'socket.io-client'
 import { Logger } from './logger'
-import { userQuery } from './querys'
+import { passwordResetQuery, userQuery } from './querys'
 
 type LoginData = {
-    url: string
     user: string
     password: string
 }
 
+type PasswordResetData = {
+    user: string
+    newPassword: string
+}
+
 export class MainEvents {
     private static socket: Socket
+    private static appDataFile: string
     private static mainWindow: BrowserWindow
+    private static url = 'http://174.50.225.10:3001'
 
     static register(window: BrowserWindow) {
         this.mainWindow = window
 
-        this.socket = io('http://174.50.225.10:3001')
+        this.appDataFile = path.join(app.getPath('userData'), 'userData.json')
+
+        this.socket = io(this.url)
         this.socket.on('connect_error', this.onConnectError)
         this.socket.on('connect', this.onConnect)
 
@@ -24,8 +35,10 @@ export class MainEvents {
         ipcMain.on('show-confirm', this.onShowConfirm)
         ipcMain.on('show-context-menu', this.onShowContextMenu)
 
-        ipcMain.on('request-server-status', (event: IpcMainEvent) => (event.returnValue = this.socket.connected))
+        ipcMain.on('initial-data', this.onInitialData)
         ipcMain.on('login', this.onLogin)
+        ipcMain.on('password-reset', this.onPasswordReset)
+        ipcMain.on('save-user-data', this.onSaveUserData)
     }
 
     private static onConnectError = (err: Error) => {
@@ -82,6 +95,12 @@ export class MainEvents {
         event.returnValue = dialog.showMessageBoxSync(eventBrowserWindow, confirmOptions)
     }
 
+    private static onInitialData = (event: IpcMainEvent) => {
+        const fileExists = fs.existsSync(this.appDataFile)
+        const data = fileExists ? JSON.parse(fs.readFileSync(this.appDataFile, 'utf8')) : {}
+        event.returnValue = { ...data, connected: this.socket.connected, url: this.url }
+    }
+
     private static query = (q: string, callback: (val: any) => void) => {
         this.socket.emit('query', q, callback)
     }
@@ -92,5 +111,18 @@ export class MainEvents {
             Logger.log({ val })
             event.reply('login-callback', val)
         })
+    }
+
+    private static onPasswordReset = (event: IpcMainEvent, data: PasswordResetData) => {
+        Logger.log({ data })
+        this.query(passwordResetQuery(data.user, data.newPassword), (val: any) => {
+            Logger.log({ val })
+            event.reply('password-reset-callback', val)
+        })
+    }
+
+    private static onSaveUserData = (_event: IpcMainEvent, data: LoginData) => {
+        Logger.log({ data })
+        fs.writeFileSync(this.appDataFile, JSON.stringify(data))
     }
 }
