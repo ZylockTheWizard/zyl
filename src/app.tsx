@@ -1,11 +1,12 @@
 import React from 'react'
 import ReactDOM from 'react-dom/client'
-import { BrowserRouter, Route, Routes } from 'react-router'
+import { HashRouter, Route, Routes } from 'react-router'
 import { Login } from './client/login'
 import { Chat } from './client/chat'
 import { createTheme, CssBaseline, ThemeProvider } from '@mui/material'
 import { Overlay } from './client/overlay'
 import { PasswordReset } from './client/password-reset'
+import { Server } from './client/server'
 
 type UserData = {
     user: string
@@ -45,12 +46,13 @@ ReactDOM.createRoot(document.body).render(
     <ThemeProvider theme={darkTheme}>
         <CssBaseline />
         <Overlay />
-        <BrowserRouter>
+        <HashRouter>
             <Routes>
-                <Route path="/main_window" element={<Login />} />
-                <Route path="/password_reset" element={<PasswordReset />} />
+                <Route path="/" element={<Server />} />
+                <Route path="/login" element={<Login />} />
+                <Route path="/password-reset" element={<PasswordReset />} />
                 <Route path="/chat" element={<Chat />} />
             </Routes>
-        </BrowserRouter>
+        </HashRouter>
     </ThemeProvider>,
 )

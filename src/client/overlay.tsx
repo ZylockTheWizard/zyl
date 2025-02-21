@@ -1,12 +1,12 @@
 import React from 'react'
-import { CircularProgress, Stack, Typography } from '@mui/material'
+import { Button, CircularProgress, Stack, Typography } from '@mui/material'
 
 export const Overlay = () => {
-    const [connected, setConnected] = React.useState(window.userData.connected)
+    const [connected, setConnected] = React.useState(true)
     window.register('server-status', (_event: any, val: any) => {
         if (val.status === 'connected') {
             setConnected(true)
-        } else if (val.error) {
+        } else if (val.status === 'error') {
             setConnected(false)
         }
     })
@@ -33,10 +33,15 @@ export const Overlay = () => {
         height: '100px',
         color: 'inherit',
     }
+
+    const onClick = () => {
+        window.location.hash = '#/'
+    }
     return (
         <Stack direction="column" justifyContent="space-between" style={overlayStyles}>
             <CircularProgress style={loadingStyles} />
             <Typography variant="h2">Connecting to the server...</Typography>
+            <Button onClick={onClick}>Return to Server Page</Button>
         </Stack>
     )
 }

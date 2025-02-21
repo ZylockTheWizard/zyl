@@ -4,42 +4,36 @@ import { FieldError, SubmitHandler, useForm } from 'react-hook-form'
 import { Alert, Button, CircularProgress, FormControl, TextField, TextFieldVariants } from '@mui/material'
 import { PageForm } from './shared/page-form'
 
-type LoginForm = {
-    user: string
-    password: string
+type ServerForm = {
+    url: string
 }
 
-export const Login = () => {
+export const Server = () => {
     const navigate = useNavigate()
-    const { register, handleSubmit, formState } = useForm<LoginForm>()
+    const { register, handleSubmit, formState } = useForm<ServerForm>()
     const { errors } = formState
 
     const [errorMessage, setErrorMessage] = React.useState('')
     const [loading, setLoading] = React.useState(false)
 
-    const onSubmit: SubmitHandler<LoginForm> = (data: LoginForm) => {
+    const onSubmit: SubmitHandler<ServerForm> = (data: ServerForm) => {
         console.log({ data })
         setLoading(true)
-        window.register('login-callback', (_event: any, val: any) => {
+        window.register('initial-server-status', (_event: any, val: any) => {
             setLoading(false)
             console.log({ val })
 
             let error = ''
-            if (val.error) error = val.error
-            else if (val.length === 0) error = 'User not found'
-            else if (val[0].password !== data.password) error = 'Password is incorrect'
-
-            window.userData.user = val[0].id
-
-            if (val[0].passwordReset === 1) navigate('/password-reset')
-            else {
-                window.ipcRenderer.send('save-user-data', { ...data, url: window.userData.url })
-                navigate('/chat')
+            if (val.error) {
+                error = val.error
+            } else {
+                window.userData.url = data.url
+                navigate('/login')
             }
 
             setErrorMessage(error)
         })
-        window.ipcRenderer.send('login', data)
+        window.ipcRenderer.send('connect-to-server', data.url)
     }
 
     const fieldProps = (label: string, field: string, error: FieldError) => {
@@ -64,15 +58,12 @@ export const Login = () => {
     }
 
     return (
-        <PageForm pageTitle="Sign In" onSubmit={handleSubmit(onSubmit)}>
+        <PageForm pageTitle="Server" onSubmit={handleSubmit(onSubmit)}>
             <FormControl>
-                <TextField autoFocus defaultValue={window.userData.user} {...fieldProps('User', 'user', errors.user)} />
-            </FormControl>
-            <FormControl>
-                <TextField type="password" defaultValue={window.userData.password} {...fieldProps('Password', 'password', errors.password)} />
+                <TextField autoFocus defaultValue={window.userData.url} {...fieldProps('URL', 'url', errors.url)} />
             </FormControl>
             <Button type="submit" fullWidth variant="contained" disabled={loading}>
-                {loading ? <CircularProgress size={25} /> : 'Sign in'}
+                {loading ? <CircularProgress size={25} /> : 'Connnect'}
             </Button>
             {errorMessage && (
                 <Alert variant="filled" severity="error">

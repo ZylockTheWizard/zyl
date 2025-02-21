@@ -1,12 +1,12 @@
 import fs from 'node:fs'
 import path from 'node:path'
 import { app, BrowserWindow, dialog, ipcMain, IpcMainEvent, Menu, MenuItemConstructorOptions, MessageBoxSyncOptions } from 'electron'
-
 import { io, Socket } from 'socket.io-client'
 import { Logger } from './logger'
 import { passwordResetQuery, userQuery } from './querys'
 
 type LoginData = {
+    url: string
     user: string
     password: string
 }
@@ -20,36 +20,22 @@ export class MainEvents {
     private static socket: Socket
     private static appDataFile: string
     private static mainWindow: BrowserWindow
-    private static url = 'http://174.50.225.10:3001'
+    private static firstConnect: boolean = false
 
     static register(window: BrowserWindow) {
         this.mainWindow = window
 
         this.appDataFile = path.join(app.getPath('userData'), 'userData.json')
 
-        this.socket = io(this.url)
-        this.socket.on('connect_error', this.onConnectError)
-        this.socket.on('connect', this.onConnect)
-
         ipcMain.on('show-alert', this.onShowAlert)
         ipcMain.on('show-confirm', this.onShowConfirm)
         ipcMain.on('show-context-menu', this.onShowContextMenu)
 
         ipcMain.on('initial-data', this.onInitialData)
+        ipcMain.on('connect-to-server', this.onConnectToServer)
         ipcMain.on('login', this.onLogin)
         ipcMain.on('password-reset', this.onPasswordReset)
         ipcMain.on('save-user-data', this.onSaveUserData)
-    }
-
-    private static onConnectError = (err: Error) => {
-        const message = 'Failed to connect to the server'
-        Logger.error(message, err)
-        this.mainWindow.webContents.send('server-status', { status: 'error', error: message })
-    }
-
-    private static onConnect = () => {
-        Logger.log(this.socket.id)
-        this.mainWindow.webContents.send('server-status', { status: 'connected' })
     }
 
     private static onShowContextMenu = (event: IpcMainEvent, mouseX: number, mouseY: number) => {
@@ -98,7 +84,34 @@ export class MainEvents {
     private static onInitialData = (event: IpcMainEvent) => {
         const fileExists = fs.existsSync(this.appDataFile)
         const data = fileExists ? JSON.parse(fs.readFileSync(this.appDataFile, 'utf8')) : {}
-        event.returnValue = { ...data, connected: this.socket.connected, url: this.url }
+        event.returnValue = data
+    }
+
+    private static onConnectToServer = (_event: IpcMainEvent, url: string) => {
+        this.socket = io(url)
+        this.socket.on('connect_error', this.onConnectError)
+        this.socket.on('connect', this.onConnect)
+    }
+
+    private static onConnectError = (err: Error) => {
+        const message = 'Failed to connect to the server'
+        Logger.error(message, err)
+        if (!this.firstConnect) {
+            this.socket.disconnect()
+            this.mainWindow.webContents.send('initial-server-status', { status: 'error', error: message })
+        } else {
+            this.mainWindow.webContents.send('server-status', { status: 'error', error: message })
+        }
+    }
+
+    private static onConnect = () => {
+        Logger.log(this.socket.id)
+        if (!this.firstConnect) {
+            this.firstConnect = true
+            this.mainWindow.webContents.send('initial-server-status', { status: 'connected' })
+        } else {
+            this.mainWindow.webContents.send('server-status', { status: 'connected' })
+        }
     }
 
     private static query = (q: string, callback: (val: any) => void) => {

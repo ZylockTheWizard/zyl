@@ -36,7 +36,7 @@ export const PasswordReset = () => {
             if (val.error) error = val.error
             else if (val.affectedRows !== 1) error = 'Something went wrong'
             else {
-                window.ipcRenderer.send('save-user-data', userData)
+                window.ipcRenderer.send('save-user-data', { userData, url: window.userData.url })
                 navigate('/chat')
             }
             setErrorMessage(error)
