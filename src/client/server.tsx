@@ -28,6 +28,7 @@ export const Server = () => {
                 error = val.error
             } else {
                 window.userData.url = data.url
+                window.ipcRenderer.send('save-user-data', { url: window.userData.url })
                 navigate('/login')
             }
 

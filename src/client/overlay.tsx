@@ -35,13 +35,17 @@ export const Overlay = () => {
     }
 
     const onClick = () => {
+        window.ipcRenderer.send('reset')
+        setConnected(true)
         window.location.hash = '#/'
     }
     return (
         <Stack direction="column" justifyContent="space-between" style={overlayStyles}>
             <CircularProgress style={loadingStyles} />
             <Typography variant="h2">Connecting to the server...</Typography>
-            <Button onClick={onClick}>Return to Server Page</Button>
+            <Button variant="contained" color="error" onClick={onClick}>
+                Return to Server Page
+            </Button>
         </Stack>
     )
 }

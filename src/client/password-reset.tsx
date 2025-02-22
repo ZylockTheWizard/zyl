@@ -23,25 +23,19 @@ export const PasswordReset = () => {
             setErrorMessage('The passwords do not match')
             return
         }
-        const userData = {
-            user: window.userData.user,
-            password: data.newPassword,
-        }
         setLoading(true)
+        window.userData.password = data.newPassword
         window.register('password-reset-callback', (_event: any, val: any) => {
             setLoading(false)
             console.log({ val })
 
             let error = ''
             if (val.error) error = val.error
-            else if (val.affectedRows !== 1) error = 'Something went wrong'
-            else {
-                window.ipcRenderer.send('save-user-data', { userData, url: window.userData.url })
-                navigate('/chat')
-            }
+            else navigate('/login')
+
             setErrorMessage(error)
         })
-        window.ipcRenderer.send('password-reset', userData)
+        window.ipcRenderer.send('password-reset', window.userData)
     }
 
     const fieldProps = (label: string, field: string, error: FieldError) => {

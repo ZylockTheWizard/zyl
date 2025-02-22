@@ -22,20 +22,15 @@ export const Login = () => {
         setLoading(true)
         window.register('login-callback', (_event: any, val: any) => {
             setLoading(false)
-            console.log({ val })
+            console.log({ loginCallback: val })
+
+            window.userData.user = data.user
+            window.userData.password = data.password
 
             let error = ''
             if (val.error) error = val.error
-            else if (val.length === 0) error = 'User not found'
-            else if (val[0].password !== data.password) error = 'Password is incorrect'
-
-            window.userData.user = val[0].id
-
-            if (val[0].passwordReset === 1) navigate('/password-reset')
-            else {
-                window.ipcRenderer.send('save-user-data', { ...data, url: window.userData.url })
-                navigate('/chat')
-            }
+            else if (val.result.passwordReset) navigate('/password-reset')
+            else navigate('/chat')
 
             setErrorMessage(error)
         })
