@@ -24,13 +24,18 @@ export const Login = () => {
             setLoading(false)
             console.log({ loginCallback: val })
 
-            window.userData.user = data.user
-            window.userData.password = data.password
+            window.zylSession.userData = {
+                user: data.user,
+                password: data.password,
+            }
 
             let error = ''
             if (val.error) error = val.error
             else if (val.result.passwordReset) navigate('/password-reset')
-            else navigate('/chat')
+            else {
+                window.zylSession.loginData = val.result
+                navigate('/chat')
+            }
 
             setErrorMessage(error)
         })
@@ -61,10 +66,14 @@ export const Login = () => {
     return (
         <PageForm pageTitle="Sign In" onSubmit={handleSubmit(onSubmit)}>
             <FormControl>
-                <TextField autoFocus defaultValue={window.userData.user} {...fieldProps('User', 'user', errors.user)} />
+                <TextField autoFocus defaultValue={window.zylSession.userData.user} {...fieldProps('User', 'user', errors.user)} />
             </FormControl>
             <FormControl>
-                <TextField type="password" defaultValue={window.userData.password} {...fieldProps('Password', 'password', errors.password)} />
+                <TextField
+                    type="password"
+                    defaultValue={window.zylSession.userData.password}
+                    {...fieldProps('Password', 'password', errors.password)}
+                />
             </FormControl>
             <Button type="submit" fullWidth variant="contained" disabled={loading}>
                 {loading ? <CircularProgress size={25} /> : 'Sign in'}

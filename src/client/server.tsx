@@ -27,8 +27,10 @@ export const Server = () => {
             if (val.error) {
                 error = val.error
             } else {
-                window.userData.url = data.url
-                window.ipcRenderer.send('save-user-data', { url: window.userData.url })
+                window.zylSession.userData = {
+                    url: data.url,
+                }
+                window.ipcRenderer.send('save-user-data', { url: window.zylSession.userData.url })
                 navigate('/login')
             }
 
@@ -61,7 +63,7 @@ export const Server = () => {
     return (
         <PageForm pageTitle="Server" onSubmit={handleSubmit(onSubmit)}>
             <FormControl>
-                <TextField autoFocus defaultValue={window.userData.url} {...fieldProps('URL', 'url', errors.url)} />
+                <TextField autoFocus defaultValue={window.zylSession.userData.url} {...fieldProps('URL', 'url', errors.url)} />
             </FormControl>
             <Button type="submit" fullWidth variant="contained" disabled={loading}>
                 {loading ? <CircularProgress size={25} /> : 'Connnect'}

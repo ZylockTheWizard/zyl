@@ -24,7 +24,7 @@ export const PasswordReset = () => {
             return
         }
         setLoading(true)
-        window.userData.password = data.newPassword
+        window.zylSession.userData = { password: data.newPassword }
         window.register('password-reset-callback', (_event: any, val: any) => {
             setLoading(false)
             console.log({ val })
@@ -35,7 +35,7 @@ export const PasswordReset = () => {
 
             setErrorMessage(error)
         })
-        window.ipcRenderer.send('password-reset', window.userData)
+        window.ipcRenderer.send('password-reset', window.zylSession.userData)
     }
 
     const fieldProps = (label: string, field: string, error: FieldError) => {

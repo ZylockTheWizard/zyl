@@ -31,6 +31,7 @@ export class MainEvents {
         ipcMain.on('login', this.onLogin)
         ipcMain.on('password-reset', this.onPasswordReset)
         ipcMain.on('save-user-data', this.onSaveUserData)
+        ipcMain.on('message', this.onMessage)
     }
 
     private static onShowContextMenu = (event: IpcMainEvent, mouseX: number, mouseY: number) => {
@@ -80,6 +81,8 @@ export class MainEvents {
         this.socket = io(url)
         this.socket.on('connect_error', this.onConnectError)
         this.socket.on('connect', this.onConnect)
+        this.socket.on('connected-users', this.onUsers)
+        this.socket.on('current-messages', this.onMessages)
     }
 
     private static onConnectError = (err: Error) => {
@@ -134,5 +137,18 @@ export class MainEvents {
         const newData = { ...this.getAppData(), ...data }
         Logger.log({ newData })
         fs.writeFileSync(this.appDataFile, JSON.stringify(newData))
+    }
+
+    private static onMessage = (_event: IpcMainEvent, message: string) => {
+        Logger.log({ message })
+        this.socket.emit('message', message)
+    }
+
+    private static onMessages = (val: any) => {
+        this.mainWindow.webContents.send('current-messages', val)
+    }
+
+    private static onUsers = (val: any) => {
+        this.mainWindow.webContents.send('connected-users', val)
     }
 }
