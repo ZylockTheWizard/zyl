@@ -1,8 +1,8 @@
 import React from 'react'
 import { useNavigate } from 'react-router'
 import { FieldError, SubmitHandler, useForm } from 'react-hook-form'
-import { Alert, Button, CircularProgress, FormControl, TextField, TextFieldVariants } from '@mui/material'
-import { PageForm } from './shared/page-form'
+import { Alert, Button, CircularProgress, FormControl, TextField } from '@mui/material'
+import { PageForm, pageFormFieldPropGenerator } from './shared/page-form'
 
 type LoginForm = {
     user: string
@@ -43,24 +43,7 @@ export const Login = () => {
     }
 
     const fieldProps = (label: string, field: string, error: FieldError) => {
-        const registerOptions = {
-            required: label + ' is required',
-            maxLength: {
-                value: 255,
-                message: label + ' cannot be greater than 255 characters',
-            },
-        }
-        return {
-            label,
-            id: field,
-            name: field,
-            error: !!error,
-            fullWidth: true,
-            disabled: loading,
-            helperText: error?.message,
-            variant: 'outlined' as TextFieldVariants,
-            ...register(field as any, registerOptions),
-        }
+        return pageFormFieldPropGenerator({ label, field, error, loading, register })
     }
 
     return (

@@ -1,5 +1,6 @@
 import React from 'react'
-import { Box, Card, Stack, Typography } from '@mui/material'
+import { Box, Card, Stack, TextFieldVariants, Typography } from '@mui/material'
+import { FieldError, UseFormRegister } from 'react-hook-form'
 
 export type PageFormProps = {
     children: React.ReactNode
@@ -45,4 +46,33 @@ export const PageForm: React.FC<PageFormProps> = (props) => {
             </Card>
         </Stack>
     )
+}
+
+type DynamicProperties = {
+    label: string
+    field: string
+    error: FieldError
+    loading: boolean
+    register: UseFormRegister<any>
+}
+
+export const pageFormFieldPropGenerator = (props: DynamicProperties) => {
+    const registerOptions = {
+        required: props.label + ' is required',
+        maxLength: {
+            value: 255,
+            message: props.label + ' cannot be greater than 255 characters',
+        },
+    }
+    return {
+        id: props.field,
+        fullWidth: true,
+        name: props.field,
+        label: props.label,
+        error: !!props.error,
+        disabled: props.loading,
+        helperText: props.error?.message,
+        variant: 'outlined' as TextFieldVariants,
+        ...props.register(props.field as any, registerOptions),
+    }
 }
