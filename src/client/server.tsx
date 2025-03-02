@@ -18,7 +18,7 @@ export const Server = () => {
 
     const onSubmit: SubmitHandler<ServerForm> = (data: ServerForm) => {
         console.log({ data })
-        const cleanURL = data.url.trim().replace(/\/|\\$/, '')
+        const cleanURL = data.url.trim().replace(/(\/|\\)$/, '')
         setLoading(true)
         window.register('initial-server-status', (_event: any, val: any) => {
             setLoading(false)

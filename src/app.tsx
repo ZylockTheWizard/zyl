@@ -7,6 +7,7 @@ import { createTheme, CssBaseline, ThemeProvider } from '@mui/material'
 import { Overlay } from './client/overlay'
 import { PasswordReset } from './client/password-reset'
 import { Server } from './client/server'
+import { Game } from './client/game'
 
 type UserData = {
     user?: string
@@ -84,6 +85,7 @@ ReactDOM.createRoot(document.body).render(
                 <Route path="/login" element={<Login />} />
                 <Route path="/password-reset" element={<PasswordReset />} />
                 <Route path="/chat" element={<Chat />} />
+                <Route path="/game" element={<Game />} />
             </Routes>
         </HashRouter>
     </ThemeProvider>,

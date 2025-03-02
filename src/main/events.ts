@@ -78,6 +78,7 @@ export class MainEvents {
     }
 
     private static onConnectToServer = (_event: IpcMainEvent, url: string) => {
+        Logger.log({ url })
         this.socket = io(url)
         this.socket.on('connect_error', this.onConnectError)
         this.socket.on('connect', this.onConnect)

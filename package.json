@@ -44,6 +44,8 @@
     "typescript-eslint": "^8.24.0"
   },
   "dependencies": {
+    "@babylonjs/core": "^7.51.1",
+    "@babylonjs/materials": "^7.51.1",
     "@emotion/react": "^11.14.0",
     "@emotion/styled": "^11.14.0",
     "@fontsource/roboto": "^5.1.1",

@@ -34,7 +34,7 @@ export const Login = () => {
             else if (val.result.passwordReset) navigate('/password-reset')
             else {
                 window.zylSession.loginData = val.result
-                navigate('/chat')
+                navigate('/game')
             }
 
             setErrorMessage(error)
