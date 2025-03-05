@@ -43,10 +43,10 @@ export const Game = () => {
         camera.inputs.attached.pointers.camera.panningSensibility = 200
 
         const mapMaterial = new StandardMaterial('map', scene)
-        mapMaterial.emissiveTexture = new Texture('https://runefoundry.com/cdn/shop/files/ForestWaterfallIsometric_digital_grid_day.jpg', scene)
-        mapMaterial.disableLighting = true
-        const ground = MeshBuilder.CreateGround('ground', { width: 33, height: 23.1 }, scene)
+        mapMaterial.emissiveTexture = new Texture(`${window.zylSession.userData.url}/images/map1.png`, scene)
+        const ground = MeshBuilder.CreateGround('map', { width: 33, height: 23.1 }, scene)
         ground.material = mapMaterial
+        ground.alphaIndex = 0
 
         const gridMaterial = new GridMaterial('grid', scene)
         gridMaterial.gridRatio = 23.1 / 21
@@ -56,14 +56,16 @@ export const Game = () => {
         const gridGround = MeshBuilder.CreateGround('grid', { width: 33, height: 23.1 }, scene)
         gridGround.material = gridMaterial
         gridGround.position = new Vector3(0, 0.001, 0)
+        gridGround.alphaIndex = 1
 
         const tokenMaterial = new StandardMaterial('token', scene)
-        tokenMaterial.emissiveTexture = new Texture('https://runefoundry.com/cdn/shop/files/ForestWaterfallIsometric_digital_grid_day.jpg', scene)
-        tokenMaterial.disableLighting = true
-
+        const tokenTexture = new Texture(`${window.zylSession.userData.url}/images/token1.png`, scene)
+        tokenMaterial.emissiveTexture = tokenTexture
+        tokenMaterial.opacityTexture = tokenTexture
         const tokenGround = MeshBuilder.CreateGround('token', { width: 1, height: 1 }, scene)
         tokenGround.material = tokenMaterial
         tokenGround.position = new Vector3(0, 0.002, 0)
+        tokenGround.alphaIndex = 2
 
         let startingPoint: Vector3
         let currentMesh: AbstractMesh
