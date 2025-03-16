@@ -35,7 +35,10 @@ export const start = (canvas: HTMLCanvasElement) => {
     camera.inputs.attached.pointers.camera.panningSensibility = 200
 
     const mapMaterial = new StandardMaterial('map-material', scene)
-    mapMaterial.emissiveTexture = new Texture(`${window.zylSession.userData.url}/images/map1.png`, scene)
+    mapMaterial.emissiveTexture = new Texture(
+        `${window.zylSession.userData.url}/images/map1.png`,
+        scene,
+    )
     const map = MeshBuilder.CreateGround('map-ground', { width: 33, height: 23.1 }, scene)
     map.material = mapMaterial
     map.position = new Vector3(0.05, 0, 0.03)
@@ -55,7 +58,11 @@ export const start = (canvas: HTMLCanvasElement) => {
     const tokenTexture = new Texture(`${window.zylSession.userData.url}/images/token1.png`, scene)
     tokenMaterial.emissiveTexture = tokenTexture
     tokenMaterial.opacityTexture = tokenTexture
-    const tokenGround = MeshBuilder.CreateGround('token-ground', { width: gridMaterial.gridRatio, height: gridMaterial.gridRatio }, scene)
+    const tokenGround = MeshBuilder.CreateGround(
+        'token-ground',
+        { width: gridMaterial.gridRatio, height: gridMaterial.gridRatio },
+        scene,
+    )
     tokenGround.material = tokenMaterial
     tokenGround.position = new Vector3(0, 0.002, 0)
     tokenGround.alphaIndex = 2

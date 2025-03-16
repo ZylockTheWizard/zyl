@@ -1,24 +1,25 @@
 import React from 'react'
 import { useNavigate } from 'react-router'
-import { FieldError, SubmitHandler, useForm } from 'react-hook-form'
-import { Alert, Button, CircularProgress, FormControl, TextField } from '@mui/material'
-import { PageForm, pageFormFieldPropGenerator } from './shared/page-form'
+import { SubmitHandler } from 'react-hook-form'
+import { Button, CircularProgress } from '@mui/material'
+import { PageFormWrapper } from './shared/page-form-wrapper'
+import { BuildFormComponents } from './shared/base-form'
+import { PRIMARY_VALIDATIONS } from './shared/validations'
 
-type PasswordResetForm = {
+type PasswordResetFieldValues = {
     newPassword: string
     verifyPassword: string
 }
 
+const PasswordResetForm = BuildFormComponents<PasswordResetFieldValues>()
+
 export const PasswordReset = () => {
     const navigate = useNavigate()
-    const { register, handleSubmit, formState } = useForm<PasswordResetForm>()
-    const { errors } = formState
 
     const [errorMessage, setErrorMessage] = React.useState('')
     const [loading, setLoading] = React.useState(false)
 
-    const onSubmit: SubmitHandler<PasswordResetForm> = (data: PasswordResetForm) => {
-        console.log({ data })
+    const onSubmit: SubmitHandler<PasswordResetFieldValues> = (data: PasswordResetFieldValues) => {
         if (data.newPassword !== data.verifyPassword) {
             setErrorMessage('The passwords do not match')
             return
@@ -38,26 +39,27 @@ export const PasswordReset = () => {
         window.ipcRenderer.send('password-reset', window.zylSession.userData)
     }
 
-    const fieldProps = (label: string, field: string, error: FieldError) => {
-        return pageFormFieldPropGenerator({ label, field, error, loading, register })
-    }
-
     return (
-        <PageForm pageTitle="Password Reset" onSubmit={handleSubmit(onSubmit)}>
-            <FormControl>
-                <TextField type="password" {...fieldProps('New Password', 'newPassword', errors.newPassword)} />
-            </FormControl>
-            <FormControl>
-                <TextField type="password" {...fieldProps('Verify Password', 'verifyPassword', errors.verifyPassword)} />
-            </FormControl>
-            <Button type="submit" fullWidth variant="contained" disabled={loading}>
-                {loading ? <CircularProgress size={25} /> : 'Sign in'}
-            </Button>
-            {errorMessage && (
-                <Alert variant="filled" severity="error">
-                    {errorMessage}
-                </Alert>
-            )}
-        </PageForm>
+        <PageFormWrapper pageTitle="Password Reset">
+            <PasswordResetForm.Form
+                onSubmit={onSubmit}
+                loading={loading}
+                errorMessage={errorMessage}
+            >
+                <PasswordResetForm.TextField
+                    type="password"
+                    field="newPassword"
+                    validations={PRIMARY_VALIDATIONS}
+                />
+                <PasswordResetForm.TextField
+                    type="password"
+                    field="verifyPassword"
+                    validations={PRIMARY_VALIDATIONS}
+                />
+                <Button type="submit" fullWidth variant="contained" disabled={loading}>
+                    {loading ? <CircularProgress size={25} /> : 'Sign in'}
+                </Button>
+            </PasswordResetForm.Form>
+        </PageFormWrapper>
     )
 }

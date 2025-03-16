@@ -1,6 +1,15 @@
 import fs from 'node:fs'
 import path from 'node:path'
-import { app, BrowserWindow, dialog, ipcMain, IpcMainEvent, Menu, MenuItemConstructorOptions, MessageBoxSyncOptions } from 'electron'
+import {
+    app,
+    BrowserWindow,
+    dialog,
+    ipcMain,
+    IpcMainEvent,
+    Menu,
+    MenuItemConstructorOptions,
+    MessageBoxSyncOptions,
+} from 'electron'
 import { io, Socket } from 'socket.io-client'
 import { Logger } from './logger'
 
@@ -30,8 +39,10 @@ export class MainEvents {
         ipcMain.on('connect-to-server', this.onConnectToServer)
         ipcMain.on('login', this.onLogin)
         ipcMain.on('password-reset', this.onPasswordReset)
+        ipcMain.on('logout', this.onLogout)
         ipcMain.on('save-user-data', this.onSaveUserData)
         ipcMain.on('message', this.onMessage)
+        ipcMain.on('user-save', this.onUserSave)
     }
 
     private static onShowContextMenu = (event: IpcMainEvent, mouseX: number, mouseY: number) => {
@@ -78,11 +89,10 @@ export class MainEvents {
     }
 
     private static onConnectToServer = (_event: IpcMainEvent, url: string) => {
-        Logger.log({ url })
         this.socket = io(url)
         this.socket.on('connect_error', this.onConnectError)
         this.socket.on('connect', this.onConnect)
-        this.socket.on('connected-users', this.onUsers)
+        this.socket.on('current-users', this.onUsers)
         this.socket.on('current-messages', this.onMessages)
     }
 
@@ -91,7 +101,10 @@ export class MainEvents {
         Logger.error(message, err)
         if (!this.firstConnect) {
             this.socket.disconnect()
-            this.mainWindow.webContents.send('initial-server-status', { status: 'error', error: message })
+            this.mainWindow.webContents.send('initial-server-status', {
+                status: 'error',
+                error: message,
+            })
         } else {
             this.mainWindow.webContents.send('server-status', { status: 'error', error: message })
         }
@@ -112,14 +125,17 @@ export class MainEvents {
     }
 
     private static onLogin = (event: IpcMainEvent, data: LoginData) => {
-        Logger.log({ data })
         this.socket.emit('login', data.user, data.password, (val: any) => {
             event.reply('login-callback', val)
         })
     }
 
+    private static onLogout = (_event: IpcMainEvent) => {
+        this.firstConnect = false
+        this.socket.emit('logout')
+    }
+
     private static onPasswordReset = (event: IpcMainEvent, data: LoginData) => {
-        Logger.log({ data })
         this.socket.emit('password-reset', data.user, data.password, (val: any) => {
             event.reply('password-reset-callback', val)
         })
@@ -136,12 +152,10 @@ export class MainEvents {
 
     private static onSaveUserData = (_event: IpcMainEvent, data: LoginData) => {
         const newData = { ...this.getAppData(), ...data }
-        Logger.log({ newData })
         fs.writeFileSync(this.appDataFile, JSON.stringify(newData))
     }
 
     private static onMessage = (_event: IpcMainEvent, message: string) => {
-        Logger.log({ message })
         this.socket.emit('message', message)
     }
 
@@ -150,6 +164,12 @@ export class MainEvents {
     }
 
     private static onUsers = (val: any) => {
-        this.mainWindow.webContents.send('connected-users', val)
+        this.mainWindow.webContents.send('current-users', val)
+    }
+
+    private static onUserSave = (event: IpcMainEvent, id: string) => {
+        this.socket.emit('user-save', id, (val: any) => {
+            event.reply('user-save-callback', val)
+        })
     }
 }

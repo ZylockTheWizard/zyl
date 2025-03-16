@@ -30,16 +30,16 @@ export class Main {
         this.mainWindow = new BrowserWindow(this.mainWindowOptions)
         this.mainWindow.loadURL(html)
         MainEvents.register(this.mainWindow)
-        if (process.argv.length > 2 && process.argv[2] === 'dev') this.mainWindow.webContents.openDevTools()
+        if (process.argv.length > 2 && process.argv[2] === 'dev')
+            this.mainWindow.webContents.openDevTools()
     }
 
     static start(html: string, preload: string) {
         // eslint-disable-next-line @typescript-eslint/no-require-imports
         if (require('electron-squirrel-startup')) app.quit()
 
-        if (!app.requestSingleInstanceLock()) app.quit()
-
-        app.on('second-instance', this.onAppSecondInstance)
+        //if (!app.requestSingleInstanceLock()) app.quit()
+        //app.on('second-instance', this.onAppSecondInstance)
         app.on('window-all-closed', this.onWindowAllClosed)
 
         app.whenReady().then(() => this.createWindow(html, preload))

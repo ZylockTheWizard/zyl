@@ -17,7 +17,7 @@ type UserData = {
 }
 
 type LoginData = {
-    users?: string[]
+    users?: any[]
     messages?: any[]
 }
 
@@ -46,11 +46,13 @@ class ZylSession {
     }
 }
 
+type ElectronCallback = (event: Electron.IpcRendererEvent, ...args: any[]) => void
+
 declare global {
     interface Window {
         zylSession: ZylSession
         ipcRenderer: Electron.IpcRenderer
-        register: (channel: string, callback: (event: Electron.IpcRendererEvent, ...args: any[]) => void) => void
+        register: (channel: string, callback: ElectronCallback) => void
     }
     interface Document {
         getElementById<T extends HTMLElement>(id: string): T | null
@@ -60,7 +62,7 @@ declare global {
 window.zylSession = new ZylSession()
 
 window.ipcRenderer = window.require('electron').ipcRenderer
-window.register = (channel: string, callback: (event: Electron.IpcRendererEvent, ...args: any[]) => void) => {
+window.register = (channel: string, callback: ElectronCallback) => {
     window.ipcRenderer.removeAllListeners(channel)
     window.ipcRenderer.on(channel, callback)
 }

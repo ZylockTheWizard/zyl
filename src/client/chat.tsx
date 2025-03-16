@@ -1,5 +1,16 @@
 import React, { useEffect } from 'react'
-import { Avatar, Box, Drawer, FormControl, List, ListItem, ListItemAvatar, ListItemText, TextField, Typography } from '@mui/material'
+import {
+    Avatar,
+    Box,
+    Drawer,
+    FormControl,
+    List,
+    ListItem,
+    ListItemAvatar,
+    ListItemText,
+    TextField,
+    Typography,
+} from '@mui/material'
 import { SubmitHandler, useForm } from 'react-hook-form'
 
 type ChatFormData = {
@@ -20,7 +31,7 @@ export const Chat = () => {
         overflowY: 'auto',
     }
 
-    window.register('connected-users', (_event: any, val: any) => {
+    window.register('current-users', (_event: any, val: any) => {
         window.zylSession.loginData = {
             users: val.users,
         }
@@ -68,7 +79,9 @@ export const Chat = () => {
                     {users.map((user) => (
                         <ListItem key={user} disablePadding>
                             <ListItemAvatar>
-                                <Avatar src={`${window.zylSession.userData.url}/images/Zylorack.jpg`} />
+                                <Avatar
+                                    src={`${window.zylSession.userData.url}/images/Zylorack.jpg`}
+                                />
                             </ListItemAvatar>
                             <ListItemText primary={user} />
                         </ListItem>
@@ -78,14 +91,21 @@ export const Chat = () => {
             <Box sx={{ flexGrow: 1, height: '100vh', display: 'flex', flexDirection: 'column' }}>
                 <div id="chatWindow" style={chatStyles}>
                     {messages.map((message, index) => (
-                        <Typography key={`message_${index}`} sx={{ marginBottom: 2, border: 'solid white', padding: '4px' }}>
+                        <Typography
+                            key={`message_${index}`}
+                            sx={{ marginBottom: 2, border: 'solid white', padding: '4px' }}
+                        >
                             <b>{message.userId}</b>
                             <br />
                             <span>{message.message}</span>
                         </Typography>
                     ))}
                 </div>
-                <FormControl component="form" onSubmit={handleSubmit(onSubmit)} style={textFieldStyles}>
+                <FormControl
+                    component="form"
+                    onSubmit={handleSubmit(onSubmit)}
+                    style={textFieldStyles}
+                >
                     <TextField autoFocus id="message" name="message" {...register('message')} />
                 </FormControl>
             </Box>

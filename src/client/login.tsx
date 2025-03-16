@@ -1,23 +1,25 @@
 import React from 'react'
 import { useNavigate } from 'react-router'
-import { FieldError, SubmitHandler, useForm } from 'react-hook-form'
-import { Alert, Button, CircularProgress, FormControl, TextField } from '@mui/material'
-import { PageForm, pageFormFieldPropGenerator } from './shared/page-form'
+import { SubmitHandler } from 'react-hook-form'
+import { Button, CircularProgress } from '@mui/material'
+import { BuildFormComponents } from './shared/base-form'
+import { PageFormWrapper } from './shared/page-form-wrapper'
+import { PRIMARY_VALIDATIONS } from './shared/validations'
 
-type LoginForm = {
+type LoginFieldValues = {
     user: string
     password: string
 }
 
+const LoginForm = BuildFormComponents<LoginFieldValues>()
+
 export const Login = () => {
     const navigate = useNavigate()
-    const { register, handleSubmit, formState } = useForm<LoginForm>()
-    const { errors } = formState
 
     const [errorMessage, setErrorMessage] = React.useState('')
     const [loading, setLoading] = React.useState(false)
 
-    const onSubmit: SubmitHandler<LoginForm> = (data: LoginForm) => {
+    const onSubmit: SubmitHandler<LoginFieldValues> = (data: LoginFieldValues) => {
         console.log({ data })
         setLoading(true)
         window.register('login-callback', (_event: any, val: any) => {
@@ -42,30 +44,25 @@ export const Login = () => {
         window.ipcRenderer.send('login', data)
     }
 
-    const fieldProps = (label: string, field: string, error: FieldError) => {
-        return pageFormFieldPropGenerator({ label, field, error, loading, register })
-    }
-
     return (
-        <PageForm pageTitle="Sign In" onSubmit={handleSubmit(onSubmit)}>
-            <FormControl>
-                <TextField autoFocus defaultValue={window.zylSession.userData.user} {...fieldProps('User', 'user', errors.user)} />
-            </FormControl>
-            <FormControl>
-                <TextField
+        <PageFormWrapper pageTitle="Sign In">
+            <LoginForm.Form onSubmit={onSubmit} loading={loading} errorMessage={errorMessage}>
+                <LoginForm.TextField
+                    autoFocus
+                    field="user"
+                    defaultValue={window.zylSession.userData.user}
+                    validations={PRIMARY_VALIDATIONS}
+                />
+                <LoginForm.TextField
+                    field="password"
                     type="password"
                     defaultValue={window.zylSession.userData.password}
-                    {...fieldProps('Password', 'password', errors.password)}
+                    validations={PRIMARY_VALIDATIONS}
                 />
-            </FormControl>
-            <Button type="submit" fullWidth variant="contained" disabled={loading}>
-                {loading ? <CircularProgress size={25} /> : 'Sign in'}
-            </Button>
-            {errorMessage && (
-                <Alert variant="filled" severity="error">
-                    {errorMessage}
-                </Alert>
-            )}
-        </PageForm>
+                <Button type="submit" fullWidth variant="contained" disabled={loading}>
+                    {loading ? <CircularProgress size={25} /> : 'Sign in'}
+                </Button>
+            </LoginForm.Form>
+        </PageFormWrapper>
     )
 }

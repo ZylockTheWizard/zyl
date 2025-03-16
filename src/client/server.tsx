@@ -1,25 +1,27 @@
 import React from 'react'
 import { useNavigate } from 'react-router'
-import { FieldError, SubmitHandler, useForm } from 'react-hook-form'
-import { Alert, Button, CircularProgress, FormControl, TextField } from '@mui/material'
-import { PageForm, pageFormFieldPropGenerator } from './shared/page-form'
+import { SubmitHandler } from 'react-hook-form'
+import { Button, CircularProgress } from '@mui/material'
+import { BuildFormComponents } from './shared/base-form'
+import { PageFormWrapper } from './shared/page-form-wrapper'
+import { PRIMARY_VALIDATIONS } from './shared/validations'
 
-type ServerForm = {
+type ServerFieldValues = {
     url: string
 }
 
+const ServerForm = BuildFormComponents<ServerFieldValues>()
+
 export const Server = () => {
     const navigate = useNavigate()
-    const { register, handleSubmit, formState } = useForm<ServerForm>()
-    const { errors } = formState
 
     const [errorMessage, setErrorMessage] = React.useState('')
     const [loading, setLoading] = React.useState(false)
 
-    const onSubmit: SubmitHandler<ServerForm> = (data: ServerForm) => {
-        console.log({ data })
-        const cleanURL = data.url.trim().replace(/(\/|\\)$/, '')
+    const onSubmit: SubmitHandler<ServerFieldValues> = (data: ServerFieldValues) => {
         setLoading(true)
+
+        const cleanURL = data.url.trim().replace(/(\/|\\)$/, '')
         window.register('initial-server-status', (_event: any, val: any) => {
             setLoading(false)
             console.log({ val })
@@ -40,23 +42,20 @@ export const Server = () => {
         window.ipcRenderer.send('connect-to-server', cleanURL)
     }
 
-    const fieldProps = (label: string, field: string, error: FieldError) => {
-        return pageFormFieldPropGenerator({ label, field, error, loading, register })
-    }
-
     return (
-        <PageForm pageTitle="Server" onSubmit={handleSubmit(onSubmit)}>
-            <FormControl>
-                <TextField autoFocus defaultValue={window.zylSession.userData.url} {...fieldProps('URL', 'url', errors.url)} />
-            </FormControl>
-            <Button type="submit" fullWidth variant="contained" disabled={loading}>
-                {loading ? <CircularProgress size={25} /> : 'Connnect'}
-            </Button>
-            {errorMessage && (
-                <Alert variant="filled" severity="error">
-                    {errorMessage}
-                </Alert>
-            )}
-        </PageForm>
+        <PageFormWrapper pageTitle="Server">
+            <ServerForm.Form onSubmit={onSubmit} loading={loading} errorMessage={errorMessage}>
+                <ServerForm.TextField
+                    autoFocus
+                    field="url"
+                    label="URL"
+                    defaultValue={window.zylSession.userData.url}
+                    validations={PRIMARY_VALIDATIONS}
+                />
+                <Button type="submit" fullWidth variant="contained" disabled={loading}>
+                    {loading ? <CircularProgress size={25} /> : 'Connnect'}
+                </Button>
+            </ServerForm.Form>
+        </PageFormWrapper>
     )
 }
