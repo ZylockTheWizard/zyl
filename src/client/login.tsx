@@ -5,6 +5,7 @@ import { Button, CircularProgress } from '@mui/material'
 import { BuildFormComponents } from './shared/base-form'
 import { PageFormWrapper } from './shared/page-form-wrapper'
 import { PRIMARY_VALIDATIONS } from './shared/validations'
+import { areEqual } from './shared/common-functions'
 
 type LoginFieldValues = {
     user: string
@@ -26,16 +27,14 @@ export const Login = () => {
             setLoading(false)
             console.log({ loginCallback: val })
 
-            window.zylSession.userData = {
-                user: data.user,
-                password: data.password,
-            }
-
             let error = ''
             if (val.error) error = val.error
             else if (val.result.passwordReset) navigate('/password-reset')
             else {
-                window.zylSession.loginData = val.result
+                window.zylSession.currentUsers = val.result.users
+                window.zylSession.userData = window.zylSession.currentUsers.find((u) =>
+                    areEqual(u.id, data.user),
+                )
                 navigate('/game')
             }
 

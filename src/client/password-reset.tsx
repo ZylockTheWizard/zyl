@@ -28,7 +28,6 @@ export const PasswordReset = () => {
         window.zylSession.userData = { password: data.newPassword }
         window.register('password-reset-callback', (_event: any, val: any) => {
             setLoading(false)
-            console.log({ val })
 
             let error = ''
             if (val.error) error = val.error

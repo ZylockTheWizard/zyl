@@ -24,7 +24,6 @@ export const Server = () => {
         const cleanURL = data.url.trim().replace(/(\/|\\)$/, '')
         window.register('initial-server-status', (_event: any, val: any) => {
             setLoading(false)
-            console.log({ val })
 
             let error = ''
             if (val.error) {

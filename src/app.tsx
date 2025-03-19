@@ -2,7 +2,6 @@ import React from 'react'
 import ReactDOM from 'react-dom/client'
 import { HashRouter, Route, Routes } from 'react-router'
 import { Login } from './client/login'
-import { Chat } from './client/chat'
 import { createTheme, CssBaseline, ThemeProvider } from '@mui/material'
 import { Overlay } from './client/overlay'
 import { PasswordReset } from './client/password-reset'
@@ -10,39 +9,47 @@ import { Server } from './client/server'
 import { Game } from './client/game'
 
 type UserData = {
+    url?: string
     user?: string
+    master?: number
     password?: string
     connected?: boolean
-    url?: string
 }
 
-type LoginData = {
-    users?: any[]
-    messages?: any[]
+class ZylSessionEntry {
+    private _key: string
+    constructor(key: string) {
+        this._key = key
+    }
+    get() {
+        return JSON.parse(sessionStorage.getItem(this._key))
+    }
+    set(value?: any) {
+        sessionStorage.setItem(this._key, JSON.stringify(value))
+    }
 }
 
 class ZylSession {
-    private _userData: UserData
+    private _userData: ZylSessionEntry
     public set userData(data: UserData) {
-        this._userData = { ...this._userData, ...data }
-        sessionStorage.setItem('userData', JSON.stringify(this._userData))
+        const newData = { ...this._userData.get(), ...data }
+        this._userData.set(newData)
     }
     public get userData() {
-        return this._userData
+        return this._userData.get()
     }
 
-    private _loginData: LoginData
-    public set loginData(data: LoginData) {
-        this._loginData = { ...this._loginData, ...data }
-        sessionStorage.setItem('loginData', JSON.stringify(this._loginData))
+    private _currentUsers: ZylSessionEntry
+    public set currentUsers(data: any[]) {
+        this._currentUsers.set(data)
     }
-    public get loginData() {
-        return this._loginData
+    public get currentUsers() {
+        return this._currentUsers.get()
     }
 
     constructor() {
-        this._userData = JSON.parse(sessionStorage.getItem('userData'))
-        this._loginData = JSON.parse(sessionStorage.getItem('loginData'))
+        this._userData = new ZylSessionEntry('userData')
+        this._currentUsers = new ZylSessionEntry('currentUsers')
     }
 }
 
@@ -86,7 +93,6 @@ ReactDOM.createRoot(document.body).render(
                 <Route path="/" element={<Server />} />
                 <Route path="/login" element={<Login />} />
                 <Route path="/password-reset" element={<PasswordReset />} />
-                <Route path="/chat" element={<Chat />} />
                 <Route path="/game" element={<Game />} />
             </Routes>
         </HashRouter>
