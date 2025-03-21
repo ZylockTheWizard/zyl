@@ -5,6 +5,7 @@ import PersonIcon from '@mui/icons-material/Person'
 import LandscapeIcon from '@mui/icons-material/Landscape'
 import { UserTab } from './game/panel/user-tab'
 import { SettingsTab } from './game/panel/settings-tab'
+import { isMaster } from './shared/common-functions'
 
 interface TabPanelProps {
     children?: React.ReactNode
@@ -29,8 +30,6 @@ const GameTabs = () => {
         setTabValue(newValue)
     }
 
-    const userData = window.zylSession.userData
-    const isMaster = userData.master === 1
     const tabStyles = {
         minWidth: '24px',
     }
@@ -40,7 +39,7 @@ const GameTabs = () => {
             <Box sx={{ borderBottom: 1, borderColor: 'divider' }}>
                 <Tabs variant="fullWidth" value={tabValue} onChange={handleChange}>
                     <Tab value={0} icon={<PersonIcon />} title="Players" style={tabStyles} />
-                    {isMaster && (
+                    {isMaster() && (
                         <Tab value={1} icon={<LandscapeIcon />} title="Scenes" style={tabStyles} />
                     )}
                     <Tab value={2} icon={<SettingsIcon />} title="Settings" style={tabStyles} />

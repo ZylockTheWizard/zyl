@@ -1,6 +1,7 @@
 import React from 'react'
 import { useNavigate } from 'react-router'
 import { Button, Typography } from '@mui/material'
+import { isMaster } from '../../shared/common-functions'
 
 export const SettingsTab = () => {
     const navigate = useNavigate()
@@ -22,7 +23,7 @@ export const SettingsTab = () => {
             >
                 {`${userData.user} `}
                 <span style={{ fontWeight: 'normal' }}>
-                    {`(${userData.master === 1 ? 'Master' : 'Player'})`}
+                    {`(${isMaster() ? 'Master' : 'Player'})`}
                 </span>
             </Typography>
             <Button fullWidth variant="contained" color="error" onClick={onDisconnectClick}>

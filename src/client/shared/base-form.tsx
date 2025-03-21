@@ -2,10 +2,7 @@ import React from 'react'
 import { FieldError, FieldValues, Path, SubmitHandler, useForm } from 'react-hook-form'
 import { Alert, Box, TextField } from '@mui/material'
 import { buildValidations, Validations } from './validations'
-
-function camelCaseToTitleCase(camelCaseString: string) {
-    return camelCaseString.replace(/([A-Z])/g, ' $1').replace(/^./, (str) => str.toUpperCase())
-}
+import { camelCaseToTitleCase } from './common-functions'
 
 export type BaseFormProps<T extends FieldValues> = {
     loading?: boolean

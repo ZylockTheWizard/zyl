@@ -2,7 +2,7 @@ import React from 'react'
 import { SubmitHandler } from 'react-hook-form'
 import { BuildFormComponents } from '../../shared/base-form'
 import { Validations } from '../../shared/validations'
-import { areEqual } from '../../shared/common-functions'
+import { areEqual, isMaster } from '../../shared/common-functions'
 import {
     Box,
     Button,
@@ -116,13 +116,12 @@ export const UserTab = () => {
         setOpen(true)
     }
 
-    const userData = window.zylSession.userData
-    const isMaster = userData.master === 1
+    const master = isMaster()
 
     return (
         <List>
             <UserModal {...{ open, setOpen, id: userModalId }} />
-            {isMaster && (
+            {master && (
                 <ListItem disablePadding style={{ textAlign: 'right' }}>
                     <ListItemText>
                         <IconButton title="Add Player" onClick={() => openUserModal()}>
@@ -135,10 +134,10 @@ export const UserTab = () => {
                 <ListItem key={user.id} disablePadding>
                     <ListItemText
                         primary={user.id}
-                        onClick={() => isMaster && openUserModal(user.id)}
+                        onClick={() => master && openUserModal(user.id)}
                         style={{
                             color: !user.connected ? 'gray' : '',
-                            cursor: isMaster ? 'pointer' : '',
+                            cursor: master ? 'pointer' : '',
                         }}
                     />
                 </ListItem>

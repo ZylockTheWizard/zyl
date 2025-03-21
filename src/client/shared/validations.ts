@@ -9,12 +9,10 @@ export type Validations = {
     }
 }
 
-export const PRIMARY_VALIDATIONS: Validations = {
-    required: true,
-    maxLength: true,
-}
-
-export const buildValidations = <T extends FieldValues>(val?: Validations, label?: string) => {
+export const buildValidations = <T extends FieldValues>(
+    val: Validations | undefined,
+    label: string,
+) => {
     const registerOptions: RegisterOptions<T, Path<T>> = {}
     if (val?.required) registerOptions.required = `${label} is required`
     if (val?.maxLength) {
@@ -32,4 +30,9 @@ export const buildValidations = <T extends FieldValues>(val?: Validations, label
     }
 
     return registerOptions
+}
+
+export const PRIMARY_VALIDATIONS: Validations = {
+    required: true,
+    maxLength: true,
 }
