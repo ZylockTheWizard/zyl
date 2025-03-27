@@ -32,6 +32,7 @@ export const Login = () => {
             else if (val.result.passwordReset) navigate('/password-reset')
             else {
                 window.zylSession.currentUsers = val.result.users
+                window.zylSession.currentScenes = val.result.scenes
                 window.zylSession.userData = window.zylSession.currentUsers.find((u) =>
                     areEqual(u.id, data.user),
                 )

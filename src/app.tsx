@@ -22,10 +22,12 @@ class ZylSessionEntry {
         this._key = key
     }
     get() {
-        return JSON.parse(sessionStorage.getItem(this._key))
+        const entryString = sessionStorage.getItem(this._key)
+        return entryString ? JSON.parse(entryString) : {}
     }
     set(value?: any) {
-        sessionStorage.setItem(this._key, JSON.stringify(value))
+        const str = value ? JSON.stringify(value) : ''
+        sessionStorage.setItem(this._key, str)
     }
 }
 
@@ -47,9 +49,18 @@ class ZylSession {
         return this._currentUsers.get()
     }
 
+    private _currentScenes: ZylSessionEntry
+    public set currentScenes(data: any[]) {
+        this._currentScenes.set(data)
+    }
+    public get currentScenes() {
+        return this._currentScenes.get()
+    }
+
     constructor() {
         this._userData = new ZylSessionEntry('userData')
         this._currentUsers = new ZylSessionEntry('currentUsers')
+        this._currentScenes = new ZylSessionEntry('currentScenes')
     }
 }
 

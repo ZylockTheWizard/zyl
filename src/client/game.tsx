@@ -3,9 +3,11 @@ import { Box, Drawer, Tab, Tabs } from '@mui/material'
 import SettingsIcon from '@mui/icons-material/Settings'
 import PersonIcon from '@mui/icons-material/Person'
 import LandscapeIcon from '@mui/icons-material/Landscape'
-import { UserTab } from './game/panel/user-tab'
+import { UsersTab } from './game/panel/users-tab'
 import { SettingsTab } from './game/panel/settings-tab'
 import { isMaster } from './shared/common-functions'
+import { ScenesTab } from './game/panel/scenes-tab'
+import { Scene } from './game/scene'
 
 interface TabPanelProps {
     children?: React.ReactNode
@@ -18,7 +20,7 @@ const TabPanel = (props: TabPanelProps) => {
 
     return (
         <div role="tabpanel" hidden={value !== index}>
-            <Box sx={{ p: 2 }}>{children}</Box>
+            <Box style={{ padding: '4px' }}>{children}</Box>
         </div>
     )
 }
@@ -46,7 +48,10 @@ const GameTabs = () => {
                 </Tabs>
             </Box>
             <TabPanel value={tabValue} index={0}>
-                <UserTab />
+                <UsersTab />
+            </TabPanel>
+            <TabPanel value={tabValue} index={1}>
+                <ScenesTab />
             </TabPanel>
             <TabPanel value={tabValue} index={2}>
                 <SettingsTab />
@@ -57,19 +62,22 @@ const GameTabs = () => {
 
 export const Game = () => {
     return (
-        <Box sx={{ display: 'flex' }}>
-            <Drawer
-                sx={{
-                    flexShrink: 0,
-                    '& .MuiDrawer-paper': {
-                        boxSizing: 'border-box',
-                    },
-                }}
-                variant="permanent"
-                anchor="right"
-            >
-                <GameTabs />
-            </Drawer>
-        </Box>
+        <>
+            <Scene />
+            <Box sx={{ display: 'flex' }}>
+                <Drawer
+                    sx={{
+                        flexShrink: 0,
+                        '& .MuiDrawer-paper': {
+                            boxSizing: 'border-box',
+                        },
+                    }}
+                    variant="permanent"
+                    anchor="right"
+                >
+                    <GameTabs />
+                </Drawer>
+            </Box>
+        </>
     )
 }

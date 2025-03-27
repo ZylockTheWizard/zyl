@@ -2,15 +2,18 @@ import {
     AbstractMesh,
     ArcRotateCamera,
     Color3,
+    Color4,
     Engine,
     HighlightLayer,
     IKeyboardEvent,
     KeyboardEventTypes,
+    LoadSceneAsync,
     Mesh,
     MeshBuilder,
     PointerEventTypes,
     PointerInfo,
     Scene,
+    SceneSerializer,
     StandardMaterial,
     Texture,
     Vector3,
@@ -165,4 +168,64 @@ export const start = (canvas: HTMLCanvasElement) => {
 
     engine.runRenderLoop(() => scene.render())
     window.addEventListener('resize', () => engine.resize())
+}
+
+export const loadScene = (canvas: HTMLCanvasElement, data: string) => {
+    const engine = new Engine(canvas, true)
+    LoadSceneAsync('data: ' + data, engine).then((scene) => {
+        const camera = scene.cameras[0] as ArcRotateCamera
+        camera.attachControl(canvas, true)
+        const rotationState = { x: camera.alpha, y: camera.beta }
+        scene.registerBeforeRender(() => {
+            camera.alpha = rotationState.x
+            camera.beta = rotationState.y
+        })
+        engine.runRenderLoop(() => scene.render())
+        window.addEventListener('resize', () => engine.resize())
+    })
+}
+
+export const buildDefaultScene = () => {
+    const engine = new Engine(document.createElement('canvas'))
+    const scene = new Scene(engine)
+    scene.clearColor = new Color4(0, 0, 0, 0)
+
+    const camera = new ArcRotateCamera('camera', -(Math.PI / 2), 0, 30, new Vector3(0, 0, 0), scene)
+
+    camera.lowerRadiusLimit = 5
+    camera.upperRadiusLimit = 30
+    camera.wheelPrecision = 5
+    camera.inputs.attached.pointers.camera.panningSensibility = 200
+
+    const mapMaterial = new StandardMaterial('map-material', scene)
+    mapMaterial.emissiveTexture = new Texture(
+        `${window.zylSession.userData.url}/images/map1.png`,
+        scene,
+    )
+    const map = MeshBuilder.CreateGround('map-ground', { width: 33, height: 23.1 }, scene)
+    map.material = mapMaterial
+    map.position = new Vector3(0.05, 0, 0.03)
+
+    const gridMaterial = new GridMaterial('grid-material', scene)
+    gridMaterial.gridRatio = 23.1 / 21
+    gridMaterial.gridOffset = new Vector3(0, 0, 0.55)
+    gridMaterial.majorUnitFrequency = 0
+    gridMaterial.opacity = 0.99
+    const gridGround = MeshBuilder.CreateGround('grid-ground', { width: 33, height: 23.1 }, scene)
+    gridGround.material = gridMaterial
+    gridGround.position = new Vector3(0, 0.001, 0)
+
+    const tokenMaterial = new StandardMaterial('token-material', scene)
+    const tokenTexture = new Texture(`${window.zylSession.userData.url}/images/token1.png`, scene)
+    tokenMaterial.emissiveTexture = tokenTexture
+    tokenMaterial.opacityTexture = tokenTexture
+    const tokenGround = MeshBuilder.CreateGround(
+        'token-ground',
+        { width: gridMaterial.gridRatio, height: gridMaterial.gridRatio },
+        scene,
+    )
+    tokenGround.material = tokenMaterial
+    tokenGround.position = new Vector3(0, 0.002, 0)
+
+    return JSON.stringify(SceneSerializer.Serialize(scene))
 }

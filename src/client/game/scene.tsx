@@ -1,6 +1,6 @@
 import React, { CSSProperties, useEffect, useRef } from 'react'
 import { Box } from '@mui/material'
-import { start } from './start'
+import { buildDefaultScene, loadScene } from './start'
 
 export const Scene = () => {
     const containerStyles: CSSProperties = {
@@ -26,9 +26,17 @@ export const Scene = () => {
         event.stopPropagation()
     }
 
+    const defaultScene = buildDefaultScene()
+
     useEffect(() => {
         const { current: canvas } = canvasRef
-        if (canvas) start(canvas)
+        if (canvas) loadScene(canvas, defaultScene)
+    })
+
+    window.register('scene-data', (_event: any, val: any) => {
+        console.log({ val })
+        const { current: canvas } = canvasRef
+        if (canvas) loadScene(canvas, val.data)
     })
 
     return (

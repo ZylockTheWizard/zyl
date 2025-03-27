@@ -4,17 +4,16 @@ import { BuildFormComponents } from '../../shared/base-form'
 import { Validations } from '../../shared/validations'
 import { areEqual, isMaster } from '../../shared/common-functions'
 import {
-    Box,
     Button,
     CircularProgress,
     IconButton,
     List,
     ListItem,
     ListItemText,
-    Modal,
     Typography,
 } from '@mui/material'
 import PersonAddIcon from '@mui/icons-material/PersonAdd'
+import { BaseModal } from '../../shared/base-modal'
 
 type UserModalProps = {
     id?: string
@@ -29,19 +28,6 @@ type UserModalFieldValues = {
 const UserForm = BuildFormComponents<UserModalFieldValues>()
 
 const UserModal = (props: UserModalProps) => {
-    const style = {
-        p: 4,
-        top: '50%',
-        width: 400,
-        left: '50%',
-        boxShadow: 24,
-        outline: 'none',
-        position: 'absolute',
-        border: '2px solid #000',
-        bgcolor: 'background.paper',
-        transform: 'translate(-50%, -50%)',
-    }
-
     const [loading, setLoading] = React.useState(false)
     const [errorMessage, setErrorMessage] = React.useState('')
 
@@ -73,34 +59,27 @@ const UserModal = (props: UserModalProps) => {
     }
 
     return (
-        <Modal open={props.open} onClose={() => props.setOpen(false)}>
-            <Box sx={style}>
-                <Typography variant="h6" component="h2" sx={{ mb: 2 }}>
-                    {user?.id ? 'Edit' : 'New'} Player
-                </Typography>
-                <UserForm.Form onSubmit={onSubmit} loading={loading} errorMessage={errorMessage}>
-                    <UserForm.TextField
-                        field="id"
-                        label="ID"
-                        disabled={!!user?.id}
-                        defaultValue={user?.id}
-                        validations={idValidations}
-                    />
-                    <Button
-                        type="submit"
-                        fullWidth
-                        variant="contained"
-                        disabled={loading || user?.id}
-                    >
-                        {loading ? <CircularProgress size={25} /> : 'Save'}
-                    </Button>
-                </UserForm.Form>
-            </Box>
-        </Modal>
+        <BaseModal open={props.open} setOpen={props.setOpen}>
+            <Typography variant="h6" component="h2" sx={{ mb: 2 }}>
+                {user?.id ? 'Edit' : 'New'} Player
+            </Typography>
+            <UserForm.Form onSubmit={onSubmit} loading={loading} errorMessage={errorMessage}>
+                <UserForm.TextField
+                    field="id"
+                    label="ID"
+                    disabled={!!user?.id}
+                    defaultValue={user?.id}
+                    validations={idValidations}
+                />
+                <Button type="submit" fullWidth variant="contained" disabled={loading || user?.id}>
+                    {loading ? <CircularProgress size={25} /> : 'Save'}
+                </Button>
+            </UserForm.Form>
+        </BaseModal>
     )
 }
 
-export const UserTab = () => {
+export const UsersTab = () => {
     const [open, setOpen] = React.useState(false)
     const [userModalId, setUserModalId] = React.useState<string>()
 
@@ -119,7 +98,7 @@ export const UserTab = () => {
     const master = isMaster()
 
     return (
-        <List>
+        <List style={{ padding: 0 }}>
             <UserModal {...{ open, setOpen, id: userModalId }} />
             {master && (
                 <ListItem disablePadding style={{ textAlign: 'right' }}>
@@ -130,8 +109,8 @@ export const UserTab = () => {
                     </ListItemText>
                 </ListItem>
             )}
-            {users.map((user) => (
-                <ListItem key={user.id} disablePadding>
+            {users.map((user, index) => (
+                <ListItem key={user.id} disablePadding divider={index !== users.length - 1}>
                     <ListItemText
                         primary={user.id}
                         onClick={() => master && openUserModal(user.id)}

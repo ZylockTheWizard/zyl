@@ -43,6 +43,7 @@ export class MainEvents {
         ipcMain.on('save-user-data', this.onSaveUserData)
         ipcMain.on('message', this.onMessage)
         ipcMain.on('user-save', this.onUserSave)
+        ipcMain.on('scene-save', this.onSceneSave)
     }
 
     private static onShowContextMenu = (event: IpcMainEvent, mouseX: number, mouseY: number) => {
@@ -94,6 +95,7 @@ export class MainEvents {
         this.socket.on('connect', this.onConnect)
         this.socket.on('current-users', this.onUsers)
         this.socket.on('current-messages', this.onMessages)
+        this.socket.on('scene-data', this.onSceneData)
     }
 
     private static onConnectError = (err: Error) => {
@@ -171,5 +173,15 @@ export class MainEvents {
         this.socket.emit('user-save', id, (val: any) => {
             event.reply('user-save-callback', val)
         })
+    }
+
+    private static onSceneSave = (event: IpcMainEvent, name: string, data: string) => {
+        this.socket.emit('scene-save', name, data, (val: any) => {
+            event.reply('scene-save-callback', val)
+        })
+    }
+
+    private static onSceneData = (val: any) => {
+        this.mainWindow.webContents.send('scene-data', val)
     }
 }
