@@ -70,8 +70,9 @@ export const ScenesTab = () => {
     const [open, setOpen] = React.useState(false)
     const [scenes, setScenes] = React.useState(window.zylSession.currentScenes)
 
-    const openSceneModal = () => {
-        setOpen(true)
+    const onSceneClick = (sceneId: string) => {
+        console.log({ sceneId, user: window.zylSession.userData.user })
+        window.ipcRenderer.send('set-current-scene', sceneId, window.zylSession.userData.user)
     }
 
     return (
@@ -79,13 +80,18 @@ export const ScenesTab = () => {
             <SceneModal {...{ open, setOpen, setScenes }} />
             <ListItem disablePadding style={{ textAlign: 'right' }}>
                 <ListItemText>
-                    <IconButton title="Add Scene" onClick={() => openSceneModal()}>
+                    <IconButton title="Add Scene" onClick={() => setOpen(true)}>
                         <AddIcon />
                     </IconButton>
                 </ListItemText>
             </ListItem>
             {scenes.map((scene, index) => (
-                <ListItem key={scene.id} disablePadding divider={index !== scene.length - 1}>
+                <ListItem
+                    key={scene.id}
+                    disablePadding
+                    divider={index !== scenes.length - 1}
+                    onClick={() => onSceneClick(scene.id)}
+                >
                     <ListItemText primary={scene.name} style={{ cursor: 'pointer' }} />
                 </ListItem>
             ))}

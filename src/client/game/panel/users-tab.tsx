@@ -110,10 +110,14 @@ export const UsersTab = () => {
                 </ListItem>
             )}
             {users.map((user, index) => (
-                <ListItem key={user.id} disablePadding divider={index !== users.length - 1}>
+                <ListItem
+                    key={user.id}
+                    disablePadding
+                    divider={index !== users.length - 1}
+                    onClick={() => master && openUserModal(user.id)}
+                >
                     <ListItemText
                         primary={user.id}
-                        onClick={() => master && openUserModal(user.id)}
                         style={{
                             color: !user.connected ? 'gray' : '',
                             cursor: master ? 'pointer' : '',

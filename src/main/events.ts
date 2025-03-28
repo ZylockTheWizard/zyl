@@ -44,6 +44,7 @@ export class MainEvents {
         ipcMain.on('message', this.onMessage)
         ipcMain.on('user-save', this.onUserSave)
         ipcMain.on('scene-save', this.onSceneSave)
+        ipcMain.on('set-current-scene', this.onSetCurrentScene)
     }
 
     private static onShowContextMenu = (event: IpcMainEvent, mouseX: number, mouseY: number) => {
@@ -183,5 +184,9 @@ export class MainEvents {
 
     private static onSceneData = (val: any) => {
         this.mainWindow.webContents.send('scene-data', val)
+    }
+
+    private static onSetCurrentScene = (_event: IpcMainEvent, sceneId: string, user: string) => {
+        this.socket.emit('set-current-scene', sceneId, user)
     }
 }

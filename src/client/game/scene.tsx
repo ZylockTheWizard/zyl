@@ -1,6 +1,6 @@
 import React, { CSSProperties, useEffect, useRef } from 'react'
 import { Box } from '@mui/material'
-import { buildDefaultScene, loadScene } from './start'
+import { loadScene } from './start'
 
 export const Scene = () => {
     const containerStyles: CSSProperties = {
@@ -26,18 +26,18 @@ export const Scene = () => {
         event.stopPropagation()
     }
 
-    const defaultScene = buildDefaultScene()
+    const renderSceneInCanvas = (data: string) => {
+        const { current: canvas } = canvasRef
+        if (canvas) loadScene(canvas, data)
+    }
 
     useEffect(() => {
-        const { current: canvas } = canvasRef
-        if (canvas) loadScene(canvas, defaultScene)
-    })
+        if (window.zylSession.currentSceneData) {
+            renderSceneInCanvas(window.zylSession.currentSceneData)
+        }
+    }, [])
 
-    window.register('scene-data', (_event: any, val: any) => {
-        console.log({ val })
-        const { current: canvas } = canvasRef
-        if (canvas) loadScene(canvas, val.data)
-    })
+    window.register('scene-data', (_event: any, val: any) => renderSceneInCanvas(val))
 
     return (
         <Box sx={containerStyles}>

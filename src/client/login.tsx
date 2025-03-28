@@ -36,6 +36,7 @@ export const Login = () => {
                 window.zylSession.userData = window.zylSession.currentUsers.find((u) =>
                     areEqual(u.id, data.user),
                 )
+                window.zylSession.currentSceneData = val.result.currentSceneData
                 navigate('/game')
             }
 
