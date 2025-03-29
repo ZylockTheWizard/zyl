@@ -14,6 +14,7 @@ import { BuildFormComponents } from '../../shared/base-form'
 import { PRIMARY_VALIDATIONS } from '../../shared/validations'
 import { BaseModal } from '../../shared/base-modal'
 import { buildDefaultScene } from '../start'
+import { send_register } from '../../../app'
 
 type SceneModalProps = {
     id?: string
@@ -35,7 +36,7 @@ const SceneModal = (props: SceneModalProps) => {
     const onSubmit: SubmitHandler<SceneModalFieldValues> = (data: SceneModalFieldValues) => {
         setLoading(true)
 
-        window.register('scene-save-callback', (_event: any, val: any) => {
+        const sceneSaveCallback = (_event: any, val: any) => {
             setLoading(false)
 
             let error = ''
@@ -46,9 +47,9 @@ const SceneModal = (props: SceneModalProps) => {
             }
 
             setErrorMessage(error)
-        })
+        }
 
-        window.ipcRenderer.send('scene-save', data.name, buildDefaultScene())
+        send_register('scene-save', sceneSaveCallback, data.name, buildDefaultScene())
     }
 
     return (

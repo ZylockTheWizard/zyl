@@ -89,10 +89,6 @@ declare global {
 window.zylSession = new ZylSession()
 
 window.ipcRenderer = window.require('electron').ipcRenderer
-window.register = (channel: string, callback: ElectronCallback) => {
-    window.ipcRenderer.removeAllListeners(channel)
-    window.ipcRenderer.on(channel, callback)
-}
 
 window.alert = (message: string) => window.ipcRenderer.send('show-alert', message)
 window.confirm = (message: string) => window.ipcRenderer.sendSync('show-confirm', message)
@@ -101,6 +97,16 @@ window.addEventListener('contextmenu', (event: MouseEvent) => {
 })
 
 window.zylSession.userData = window.ipcRenderer.sendSync('initial-data')
+
+export const register = (channel: string, callback: ElectronCallback) => {
+    window.ipcRenderer.removeAllListeners(channel)
+    window.ipcRenderer.on(channel, callback)
+}
+
+export const send_register = (channel: string, callback: ElectronCallback, ...args: any[]) => {
+    register(`${channel}-callback`, callback)
+    window.ipcRenderer.send(channel, ...args)
+}
 
 const darkTheme = createTheme({ palette: { mode: 'dark' } })
 

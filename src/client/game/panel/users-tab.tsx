@@ -14,6 +14,7 @@ import {
 } from '@mui/material'
 import PersonAddIcon from '@mui/icons-material/PersonAdd'
 import { BaseModal } from '../../shared/base-modal'
+import { register, send_register } from '../../../app'
 
 type UserModalProps = {
     id?: string
@@ -33,7 +34,7 @@ const UserModal = (props: UserModalProps) => {
 
     const onSubmit: SubmitHandler<UserModalFieldValues> = (data: UserModalFieldValues) => {
         setLoading(true)
-        window.register('user-save-callback', (_event: any, val: any) => {
+        const userSaveCallback = (_event: any, val: any) => {
             setLoading(false)
 
             let error = ''
@@ -41,8 +42,8 @@ const UserModal = (props: UserModalProps) => {
             else props.setOpen(false)
 
             setErrorMessage(error)
-        })
-        window.ipcRenderer.send('user-save', data.id)
+        }
+        send_register('user-save', userSaveCallback, data.id)
     }
 
     const user = props.id
@@ -85,7 +86,7 @@ export const UsersTab = () => {
 
     const [users, setUsers] = React.useState(window.zylSession.currentUsers)
 
-    window.register('current-users', (_event: any, val: any) => {
+    register('current-users', (_event: any, val: any) => {
         window.zylSession.currentUsers = val.users
         setUsers(val.users)
     })

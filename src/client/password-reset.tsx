@@ -5,6 +5,7 @@ import { Button, CircularProgress } from '@mui/material'
 import { PageFormWrapper } from './shared/page-form-wrapper'
 import { BuildFormComponents } from './shared/base-form'
 import { PRIMARY_VALIDATIONS } from './shared/validations'
+import { send_register } from '../app'
 
 type PasswordResetFieldValues = {
     newPassword: string
@@ -26,7 +27,9 @@ export const PasswordReset = () => {
         }
         setLoading(true)
         window.zylSession.userData = { password: data.newPassword }
-        window.register('password-reset-callback', (_event: any, val: any) => {
+        const user = window.zylSession.userData.user
+        const password = window.zylSession.userData.password
+        const onPasswordResetCallback = (_event: any, val: any) => {
             setLoading(false)
 
             let error = ''
@@ -34,8 +37,8 @@ export const PasswordReset = () => {
             else navigate('/login')
 
             setErrorMessage(error)
-        })
-        window.ipcRenderer.send('password-reset', window.zylSession.userData)
+        }
+        send_register('password-reset', onPasswordResetCallback, user, password)
     }
 
     return (

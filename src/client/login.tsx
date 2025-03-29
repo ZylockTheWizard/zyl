@@ -6,6 +6,7 @@ import { BuildFormComponents } from './shared/base-form'
 import { PageFormWrapper } from './shared/page-form-wrapper'
 import { PRIMARY_VALIDATIONS } from './shared/validations'
 import { areEqual } from './shared/common-functions'
+import { send_register } from '../app'
 
 type LoginFieldValues = {
     user: string
@@ -21,9 +22,8 @@ export const Login = () => {
     const [loading, setLoading] = React.useState(false)
 
     const onSubmit: SubmitHandler<LoginFieldValues> = (data: LoginFieldValues) => {
-        console.log({ data })
         setLoading(true)
-        window.register('login-callback', (_event: any, val: any) => {
+        const onLoginCallback = (_event: any, val: any) => {
             setLoading(false)
             console.log({ loginCallback: val })
 
@@ -41,8 +41,8 @@ export const Login = () => {
             }
 
             setErrorMessage(error)
-        })
-        window.ipcRenderer.send('login', data)
+        }
+        send_register('login', onLoginCallback, data.user, data.password)
     }
 
     return (

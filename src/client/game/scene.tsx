@@ -1,6 +1,7 @@
 import React, { CSSProperties, useEffect, useRef } from 'react'
 import { Box } from '@mui/material'
 import { loadScene } from './start'
+import { register } from '../../app'
 
 export const Scene = () => {
     const containerStyles: CSSProperties = {
@@ -37,7 +38,7 @@ export const Scene = () => {
         }
     }, [])
 
-    window.register('scene-data', (_event: any, val: any) => renderSceneInCanvas(val))
+    register('scene-data', (_event: any, val: any) => renderSceneInCanvas(val))
 
     return (
         <Box sx={containerStyles}>
