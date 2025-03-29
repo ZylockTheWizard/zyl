@@ -50,9 +50,11 @@ const GameTabs = () => {
             <TabPanel value={tabValue} index={0}>
                 <UsersTab />
             </TabPanel>
-            <TabPanel value={tabValue} index={1}>
-                <ScenesTab />
-            </TabPanel>
+            {isMaster() && (
+                <TabPanel value={tabValue} index={1}>
+                    <ScenesTab />
+                </TabPanel>
+            )}
             <TabPanel value={tabValue} index={2}>
                 <SettingsTab />
             </TabPanel>

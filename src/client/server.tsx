@@ -27,12 +27,9 @@ export const Server = () => {
             setLoading(false)
 
             let error = ''
-            if (val.error) {
-                error = val.error
-            } else {
-                window.zylSession.userData = {
-                    url: data.url,
-                }
+            if (val.error) error = val.error
+            else {
+                window.zylSession.userData = { url: data.url }
                 window.ipcRenderer.send('save-user-data', { url: window.zylSession.userData.url })
                 navigate('/login')
             }

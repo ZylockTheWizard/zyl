@@ -72,8 +72,8 @@ export const ScenesTab = () => {
     const [scenes, setScenes] = React.useState(window.zylSession.currentScenes)
 
     const onSceneClick = (sceneId: string) => {
-        console.log({ sceneId, user: window.zylSession.userData.user })
-        window.ipcRenderer.send('set-current-scene', sceneId, window.zylSession.userData.user)
+        console.log({ sceneId, user: window.zylSession.userData.id })
+        window.ipcRenderer.send('set-current-scene', sceneId, window.zylSession.userData.id)
     }
 
     return (

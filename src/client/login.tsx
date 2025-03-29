@@ -29,8 +29,10 @@ export const Login = () => {
 
             let error = ''
             if (val.error) error = val.error
-            else if (val.result.passwordReset) navigate('/password-reset')
-            else {
+            else if (val.result.passwordReset) {
+                window.zylSession.userData = { id: data.user, password: data.password }
+                navigate('/password-reset')
+            } else {
                 window.zylSession.currentUsers = val.result.users
                 window.zylSession.currentScenes = val.result.scenes
                 window.zylSession.userData = window.zylSession.currentUsers.find((u) =>
@@ -51,7 +53,7 @@ export const Login = () => {
                 <LoginForm.TextField
                     autoFocus
                     field="user"
-                    defaultValue={window.zylSession.userData.user}
+                    defaultValue={window.zylSession.userData.id}
                     validations={PRIMARY_VALIDATIONS}
                 />
                 <LoginForm.TextField

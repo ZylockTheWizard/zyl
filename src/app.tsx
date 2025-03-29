@@ -9,8 +9,8 @@ import { Server } from './client/server'
 import { Game } from './client/game'
 
 type UserData = {
+    id?: string
     url?: string
-    user?: string
     master?: number
     password?: string
     connected?: boolean

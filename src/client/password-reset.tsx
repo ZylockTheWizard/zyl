@@ -27,7 +27,7 @@ export const PasswordReset = () => {
         }
         setLoading(true)
         window.zylSession.userData = { password: data.newPassword }
-        const user = window.zylSession.userData.user
+        const user = window.zylSession.userData.id
         const password = window.zylSession.userData.password
         const onPasswordResetCallback = (_event: any, val: any) => {
             setLoading(false)

@@ -6,6 +6,7 @@ import { isMaster } from '../../shared/common-functions'
 export const SettingsTab = () => {
     const navigate = useNavigate()
     const userData = window.zylSession.userData
+    console.log({ userData })
     const onDisconnectClick = function () {
         window.ipcRenderer.send('logout')
         navigate('/')
@@ -21,7 +22,7 @@ export const SettingsTab = () => {
                     marginBottom: '24px',
                 }}
             >
-                {`${userData.user} `}
+                {`${userData.id} `}
                 <span style={{ fontWeight: 'normal' }}>
                     {`(${isMaster() ? 'Master' : 'Player'})`}
                 </span>
