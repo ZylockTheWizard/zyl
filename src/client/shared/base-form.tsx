@@ -20,16 +20,17 @@ export const BaseForm = <T extends FieldValues>(props: BaseFormProps<T>) => {
         formState: { errors },
     } = useForm<T>()
 
-    const fields = React.Children.map(children, (c: any): any => {
-        if (!(c?.type?.name === 'BaseFormTextField')) {
-            return c
-        }
+    const childrenArray = React.Children.toArray(children)
+    const fields = childrenArray.map((c: any, index: number) => {
+        if (c.type !== BaseFormTextField) return c
+
         const textFieldProps = c.props as BaseFormTextFieldProps<T>
         const error = errors[textFieldProps.field] as FieldError
         const label = textFieldProps.label || camelCaseToTitleCase(textFieldProps.field)
         const registerOptions = buildValidations<T>(textFieldProps.validations, label)
         return (
             <TextField
+                key={`text-field-${index}`}
                 {...{
                     label,
                     error: !!error,

@@ -5,7 +5,6 @@ import { Button, CircularProgress } from '@mui/material'
 import { BuildFormComponents } from './shared/base-form'
 import { PageFormWrapper } from './shared/page-form-wrapper'
 import { PRIMARY_VALIDATIONS } from './shared/validations'
-import { areEqual } from './shared/common-functions'
 import { send_register } from '../app'
 
 type LoginFieldValues = {
@@ -25,21 +24,20 @@ export const Login = () => {
         setLoading(true)
         const onLoginCallback = (_event: any, val: any) => {
             setLoading(false)
-            console.log({ loginCallback: val })
 
             let error = ''
             if (val.error) error = val.error
-            else if (val.result.passwordReset) {
+            else {
                 window.zylSession.userData = { id: data.user, password: data.password }
-                navigate('/password-reset')
-            } else {
-                window.zylSession.currentUsers = val.result.users
-                window.zylSession.currentScenes = val.result.scenes
-                window.zylSession.userData = window.zylSession.currentUsers.find((u) =>
-                    areEqual(u.id, data.user),
-                )
-                window.zylSession.currentSceneData = val.result.currentSceneData
-                navigate('/game')
+                window.ipcRenderer.send('save-user-data', window.zylSession.userData)
+                if (val.result.passwordReset) {
+                    navigate('/password-reset')
+                } else {
+                    window.zylSession.currentUsers = val.result.users
+                    window.zylSession.currentScenes = val.result.scenes
+                    window.zylSession.currentSceneId = val.result.sceneId
+                    navigate('/game')
+                }
             }
 
             setErrorMessage(error)

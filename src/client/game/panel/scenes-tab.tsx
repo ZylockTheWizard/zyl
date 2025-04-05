@@ -70,9 +70,10 @@ const SceneModal = (props: SceneModalProps) => {
 export const ScenesTab = () => {
     const [open, setOpen] = React.useState(false)
     const [scenes, setScenes] = React.useState(window.zylSession.currentScenes)
+    const [currentScene, setCurrentScene] = React.useState(window.zylSession.currentSceneId)
 
     const onSceneClick = (sceneId: string) => {
-        console.log({ sceneId, user: window.zylSession.userData.id })
+        setCurrentScene(sceneId)
         window.ipcRenderer.send('set-current-scene', sceneId, window.zylSession.userData.id)
     }
 
@@ -93,7 +94,13 @@ export const ScenesTab = () => {
                     divider={index !== scenes.length - 1}
                     onClick={() => onSceneClick(scene.id)}
                 >
-                    <ListItemText primary={scene.name} style={{ cursor: 'pointer' }} />
+                    <ListItemText
+                        primary={scene.name}
+                        style={{
+                            cursor: 'pointer',
+                            color: currentScene !== scene.id ? 'gray' : '',
+                        }}
+                    />
                 </ListItem>
             ))}
         </List>

@@ -6,7 +6,6 @@ import { isMaster } from '../../shared/common-functions'
 export const SettingsTab = () => {
     const navigate = useNavigate()
     const userData = window.zylSession.userData
-    console.log({ userData })
     const onDisconnectClick = function () {
         window.ipcRenderer.send('logout')
         navigate('/')

@@ -1,8 +1,9 @@
 import React from 'react'
 import ReactDOM from 'react-dom/client'
 import { HashRouter, Route, Routes } from 'react-router'
-import { Login } from './client/login'
 import { createTheme, CssBaseline, ThemeProvider } from '@mui/material'
+import { Engine } from '@babylonjs/core'
+import { Login } from './client/login'
 import { Overlay } from './client/overlay'
 import { PasswordReset } from './client/password-reset'
 import { Server } from './client/server'
@@ -11,7 +12,6 @@ import { Game } from './client/game'
 type UserData = {
     id?: string
     url?: string
-    master?: number
     password?: string
     connected?: boolean
 }
@@ -57,19 +57,19 @@ class ZylSession {
         return this._currentScenes.get()
     }
 
-    private _currentSceneData: ZylSessionEntry
-    public set currentSceneData(data: string) {
-        this._currentSceneData.set(data)
+    private _currentSceneId: ZylSessionEntry
+    public set currentSceneId(id: string) {
+        this._currentSceneId.set(id)
     }
-    public get currentSceneData() {
-        return this._currentSceneData.get()
+    public get currentSceneId() {
+        return this._currentSceneId.get()
     }
 
     constructor() {
         this._userData = new ZylSessionEntry('userData')
         this._currentUsers = new ZylSessionEntry('currentUsers')
         this._currentScenes = new ZylSessionEntry('currentScenes')
-        this._currentSceneData = new ZylSessionEntry('currentSceneData')
+        this._currentSceneId = new ZylSessionEntry('currentSceneId')
     }
 }
 
@@ -79,7 +79,7 @@ declare global {
     interface Window {
         zylSession: ZylSession
         ipcRenderer: Electron.IpcRenderer
-        register: (channel: string, callback: ElectronCallback) => void
+        babylonEngine: Engine
     }
     interface Document {
         getElementById<T extends HTMLElement>(id: string): T | null
@@ -108,10 +108,8 @@ export const send_register = (channel: string, callback: ElectronCallback, ...ar
     window.ipcRenderer.send(channel, ...args)
 }
 
-const darkTheme = createTheme({ palette: { mode: 'dark' } })
-
 ReactDOM.createRoot(document.body).render(
-    <ThemeProvider theme={darkTheme}>
+    <ThemeProvider theme={createTheme({ palette: { mode: 'dark' } })}>
         <CssBaseline />
         <Overlay />
         <HashRouter>

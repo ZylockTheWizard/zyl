@@ -27,18 +27,14 @@ export const Scene = () => {
         event.stopPropagation()
     }
 
-    const renderSceneInCanvas = (data: string) => {
+    const onSceneData = (_event: any, sceneId: string, data: string) => {
         const { current: canvas } = canvasRef
-        if (canvas) loadScene(canvas, data)
+        window.zylSession.currentSceneId = sceneId
+        loadScene(canvas, data)
     }
+    register('scene-data', onSceneData)
 
-    useEffect(() => {
-        if (window.zylSession.currentSceneData) {
-            renderSceneInCanvas(window.zylSession.currentSceneData)
-        }
-    }, [])
-
-    register('scene-data', (_event: any, val: any) => renderSceneInCanvas(val))
+    useEffect(() => window.ipcRenderer.send('get-scene', window.zylSession.currentSceneId), [])
 
     return (
         <Box sx={containerStyles}>

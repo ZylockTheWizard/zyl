@@ -16,15 +16,15 @@ export class MainEvents {
 
     private static register_emit_reply = (channel: string) => {
         ipcMain.on(channel, (event: IpcMainEvent, ...args: any[]) => {
-            this.socket.emit(channel, ...args, (val: any) => {
-                event.reply(`${channel}-callback`, val)
+            this.socket.emit(channel, ...args, (...args: any[]) => {
+                event.reply(`${channel}-callback`, ...args)
             })
         })
     }
 
     private static register_window_send = (channel: string) => {
-        this.socket.on(channel, (val: any) => {
-            this.mainWindow.webContents.send(channel, val)
+        this.socket.on(channel, (...args: any[]) => {
+            this.mainWindow.webContents.send(channel, ...args)
         })
     }
 
@@ -41,6 +41,8 @@ export class MainEvents {
         this.register_emit_reply('user-save')
         this.register_emit_reply('scene-save')
         this.register_emit('set-current-scene')
+        this.register_emit('scene-update')
+        this.register_emit('get-scene')
     }
 
     private static onConnectToServer = (_event: IpcMainEvent, url: string) => {
