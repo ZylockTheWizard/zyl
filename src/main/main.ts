@@ -27,10 +27,27 @@ export class Main {
 
     static isDev = () => process.argv.length > 2 && process.argv[2] === 'dev'
 
+    static windowOpenHandler: (
+        details: Electron.HandlerDetails,
+    ) => Electron.WindowOpenHandlerResponse = () => {
+        return {
+            action: 'allow',
+            overrideBrowserWindowOptions: {
+                title: 'Zyl',
+                autoHideMenuBar: true,
+                webPreferences: {
+                    nodeIntegration: true,
+                    contextIsolation: false,
+                },
+            },
+        }
+    }
+
     static createWindow = (html: string, preload: string) => {
         this.mainWindowOptions.webPreferences.preload = preload
         this.mainWindow = new BrowserWindow(this.mainWindowOptions)
         this.mainWindow.loadURL(html)
+        this.mainWindow.webContents.setWindowOpenHandler(this.windowOpenHandler)
         MainEvents.register(this.mainWindow)
         if (this.isDev()) this.mainWindow.webContents.openDevTools()
     }

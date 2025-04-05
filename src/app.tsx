@@ -8,6 +8,7 @@ import { Overlay } from './client/overlay'
 import { PasswordReset } from './client/password-reset'
 import { Server } from './client/server'
 import { Game } from './client/game'
+import { SceneEdit } from './client/game/scene-edit'
 
 type UserData = {
     id?: string
@@ -118,6 +119,7 @@ ReactDOM.createRoot(document.body).render(
                 <Route path="/login" element={<Login />} />
                 <Route path="/password-reset" element={<PasswordReset />} />
                 <Route path="/game" element={<Game />} />
+                <Route path="/scene-edit" element={<SceneEdit />} />
             </Routes>
         </HashRouter>
     </ThemeProvider>,

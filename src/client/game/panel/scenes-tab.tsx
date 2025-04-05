@@ -10,6 +10,7 @@ import {
     Typography,
 } from '@mui/material'
 import AddIcon from '@mui/icons-material/Add'
+import EditIcon from '@mui/icons-material/Edit'
 import { BuildFormComponents } from '../../shared/base-form'
 import { PRIMARY_VALIDATIONS } from '../../shared/validations'
 import { BaseModal } from '../../shared/base-modal'
@@ -82,6 +83,13 @@ export const ScenesTab = () => {
             <SceneModal {...{ open, setOpen, setScenes }} />
             <ListItem disablePadding style={{ textAlign: 'right' }}>
                 <ListItemText>
+                    <IconButton
+                        title="Edit Current Scene"
+                        onClick={() => window.open('#/scene-edit')}
+                        disabled={!window.zylSession.currentSceneId}
+                    >
+                        <EditIcon />
+                    </IconButton>
                     <IconButton title="Add Scene" onClick={() => setOpen(true)}>
                         <AddIcon />
                     </IconButton>
