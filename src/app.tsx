@@ -74,7 +74,7 @@ class ZylSession {
     }
 }
 
-type ElectronCallback = (event: Electron.IpcRendererEvent, ...args: any[]) => void
+export type ElectronCallback = (event: Electron.IpcRendererEvent, ...args: any[]) => void
 
 declare global {
     interface Window {
@@ -99,13 +99,13 @@ window.addEventListener('contextmenu', (event: MouseEvent) => {
 
 window.zylSession.userData = window.ipcRenderer.sendSync('initial-data')
 
-export const register = (channel: string, callback: ElectronCallback) => {
+export const listen = (channel: string, callback: ElectronCallback) => {
     window.ipcRenderer.removeAllListeners(channel)
     window.ipcRenderer.on(channel, callback)
 }
 
-export const send_register = (channel: string, callback: ElectronCallback, ...args: any[]) => {
-    register(`${channel}-callback`, callback)
+export const send_recieve = (channel: string, callback: ElectronCallback, ...args: any[]) => {
+    listen(`${channel}-callback`, callback)
     window.ipcRenderer.send(channel, ...args)
 }
 

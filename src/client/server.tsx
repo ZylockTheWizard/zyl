@@ -5,7 +5,7 @@ import { Button, CircularProgress } from '@mui/material'
 import { BuildFormComponents } from './shared/base-form'
 import { PageFormWrapper } from './shared/page-form-wrapper'
 import { PRIMARY_VALIDATIONS } from './shared/validations'
-import { register } from '../app'
+import { listen } from '../app'
 
 type ServerFieldValues = {
     url: string
@@ -23,7 +23,7 @@ export const Server = () => {
         setLoading(true)
 
         const cleanURL = data.url.trim().replace(/(\/|\\)$/, '')
-        register('initial-server-status', (_event: any, val: any) => {
+        listen('initial-server-status', (_event: any, val: any) => {
             setLoading(false)
 
             let error = ''

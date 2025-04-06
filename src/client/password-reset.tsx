@@ -5,7 +5,7 @@ import { Button, CircularProgress } from '@mui/material'
 import { PageFormWrapper } from './shared/page-form-wrapper'
 import { BuildFormComponents } from './shared/base-form'
 import { PRIMARY_VALIDATIONS } from './shared/validations'
-import { send_register } from '../app'
+import { send_recieve } from '../app'
 
 type PasswordResetFieldValues = {
     newPassword: string
@@ -38,7 +38,7 @@ export const PasswordReset = () => {
 
             setErrorMessage(error)
         }
-        send_register('password-reset', onPasswordResetCallback, user, password)
+        send_recieve('password-reset', onPasswordResetCallback, user, password)
     }
 
     return (

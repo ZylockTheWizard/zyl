@@ -39,10 +39,11 @@ export class MainEvents {
         this.register_emit_reply('password-reset')
         ipcMain.on('logout', this.onLogout)
         this.register_emit_reply('user-save')
-        this.register_emit_reply('scene-save')
+        this.register_emit_reply('scene-create')
         this.register_emit('set-current-scene')
         this.register_emit('scene-update')
         this.register_emit('get-scene')
+        this.register_emit_reply('set-my-scene')
     }
 
     private static onConnectToServer = (_event: IpcMainEvent, url: string) => {

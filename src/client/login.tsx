@@ -5,7 +5,7 @@ import { Button, CircularProgress } from '@mui/material'
 import { BuildFormComponents } from './shared/base-form'
 import { PageFormWrapper } from './shared/page-form-wrapper'
 import { PRIMARY_VALIDATIONS } from './shared/validations'
-import { send_register } from '../app'
+import { send_recieve } from '../app'
 
 type LoginFieldValues = {
     user: string
@@ -42,7 +42,7 @@ export const Login = () => {
 
             setErrorMessage(error)
         }
-        send_register('login', onLoginCallback, data.user, data.password)
+        send_recieve('login', onLoginCallback, data.user, data.password)
     }
 
     return (

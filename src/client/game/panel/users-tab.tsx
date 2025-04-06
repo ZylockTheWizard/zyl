@@ -14,7 +14,7 @@ import {
 } from '@mui/material'
 import PersonAddIcon from '@mui/icons-material/PersonAdd'
 import { BaseModal } from '../../shared/base-modal'
-import { register, send_register } from '../../../app'
+import { listen, send_recieve } from '../../../app'
 
 type UserModalProps = {
     id?: string
@@ -43,7 +43,7 @@ const UserModal = (props: UserModalProps) => {
 
             setErrorMessage(error)
         }
-        send_register('user-save', userSaveCallback, data.id)
+        send_recieve('user-save', userSaveCallback, data.id)
     }
 
     const user = props.id
@@ -86,7 +86,7 @@ export const UsersTab = () => {
 
     const [users, setUsers] = React.useState(window.zylSession.currentUsers)
 
-    register('current-users', (_event: any, val: any) => {
+    listen('current-users', (_event: any, val: any) => {
         window.zylSession.currentUsers = val.users
         setUsers(val.users)
     })
