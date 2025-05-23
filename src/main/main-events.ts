@@ -44,6 +44,7 @@ export class MainEvents {
         this.register_emit('scene-update')
         this.register_emit('get-scene')
         this.register_emit_reply('set-my-scene')
+        this.register_emit_reply('get-maps')
     }
 
     private static onConnectToServer = (_event: IpcMainEvent, url: string) => {

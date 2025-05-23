@@ -1,75 +1,11 @@
 import React from 'react'
-import { SubmitHandler } from 'react-hook-form'
-import {
-    Button,
-    CircularProgress,
-    IconButton,
-    List,
-    ListItem,
-    ListItemText,
-    Typography,
-} from '@mui/material'
+import { IconButton, List, ListItem, ListItemText } from '@mui/material'
 import AddIcon from '@mui/icons-material/Add'
 import EditIcon from '@mui/icons-material/Edit'
-import { BuildFormComponents } from '../../shared/base-form'
-import { PRIMARY_VALIDATIONS } from '../../shared/validations'
-import { BaseModal } from '../../shared/base-modal'
-import { buildDefaultScene } from '../start'
-import { ElectronCallback, send_recieve } from '../../../app'
-
-type SceneModalProps = {
-    id?: string
-    open: boolean
-    setOpen: React.Dispatch<React.SetStateAction<boolean>>
-    onCurrentScenes: (data: any) => void
-}
-
-type SceneModalFieldValues = {
-    name: string
-}
-
-const SceneForm = BuildFormComponents<SceneModalFieldValues>()
-
-const SceneModal = (props: SceneModalProps) => {
-    const [loading, setLoading] = React.useState(false)
-    const [errorMessage, setErrorMessage] = React.useState('')
-
-    const onSubmit: SubmitHandler<SceneModalFieldValues> = (data: SceneModalFieldValues) => {
-        setLoading(true)
-
-        const sceneCreateCallback = (_event: any, val: any) => {
-            setLoading(false)
-
-            let error = ''
-            if (val.error) error = val.error
-            else {
-                props.onCurrentScenes(val.result)
-                props.setOpen(false)
-            }
-
-            setErrorMessage(error)
-        }
-
-        send_recieve('scene-create', sceneCreateCallback, data.name, buildDefaultScene())
-    }
-
-    return (
-        <BaseModal open={props.open} setOpen={props.setOpen}>
-            <Typography variant="h6" component="h2" sx={{ mb: 2 }}>
-                New Scene
-            </Typography>
-            <SceneForm.Form onSubmit={onSubmit} loading={loading} errorMessage={errorMessage}>
-                <SceneForm.TextField field="name" validations={PRIMARY_VALIDATIONS} />
-                <Button type="submit" fullWidth variant="contained">
-                    {loading ? <CircularProgress color="secondary" size={25} /> : 'Save'}
-                </Button>
-            </SceneForm.Form>
-        </BaseModal>
-    )
-}
+import { ElectronCallback, electron_listen, electron_send } from '../../../app'
 
 export const ScenesTab = () => {
-    const [open, setOpen] = React.useState(false)
+    let sceneEditWindow: Window
     const [scenes, setScenes] = React.useState(window.zylSession.currentScenes)
     const [currentSceneId, setCurrentSceneId] = React.useState(window.zylSession.currentSceneId)
 
@@ -84,23 +20,31 @@ export const ScenesTab = () => {
         onCurrentScenes(data)
     }
 
+    electron_listen('set-my-scene-callback', setMySceneCallback)
+
     const onSceneClick = (sceneId: string) => {
-        send_recieve('set-my-scene', setMySceneCallback, sceneId, window.zylSession.userData.id)
+        electron_send('set-my-scene', sceneId, window.zylSession.userData.id)
+    }
+
+    const onSceneEdit = (id?: string) => {
+        if (sceneEditWindow && !sceneEditWindow.closed) {
+            sceneEditWindow.close()
+        }
+        sceneEditWindow = window.open(`#/scene-edit?id=${id ?? 'new'}`, '', 'width=400,height=300')
     }
 
     return (
         <List style={{ padding: 0 }}>
-            <SceneModal {...{ open, setOpen, onCurrentScenes }} />
             <ListItem disablePadding style={{ textAlign: 'right' }}>
                 <ListItemText>
                     <IconButton
                         title="Edit Current Scene"
-                        onClick={() => window.open('#/scene-edit', '', 'width=400,height=300')}
+                        onClick={() => onSceneEdit(window.zylSession.currentSceneId)}
                         disabled={!window.zylSession.currentSceneId}
                     >
                         <EditIcon />
                     </IconButton>
-                    <IconButton title="Add Scene" onClick={() => setOpen(true)}>
+                    <IconButton title="Add Scene" onClick={() => onSceneEdit()}>
                         <AddIcon />
                     </IconButton>
                 </ListItemText>

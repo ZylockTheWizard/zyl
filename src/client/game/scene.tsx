@@ -1,7 +1,7 @@
 import React, { CSSProperties, useEffect, useRef } from 'react'
 import { Box } from '@mui/material'
 import { loadScene } from './start'
-import { listen } from '../../app'
+import { electron_listen } from '../../app'
 
 export const Scene = () => {
     const containerStyles: CSSProperties = {
@@ -32,9 +32,12 @@ export const Scene = () => {
         window.zylSession.currentSceneId = sceneId
         loadScene(canvas, data)
     }
-    listen('scene-data', onSceneData)
+    electron_listen('scene-data', onSceneData)
 
-    useEffect(() => window.ipcRenderer.send('get-scene', window.zylSession.currentSceneId), [])
+    useEffect(() => {
+        const sceneId = window.zylSession.currentSceneId
+        if (sceneId) window.ipcRenderer.send('get-scene', sceneId)
+    }, [])
 
     return (
         <Box sx={containerStyles}>

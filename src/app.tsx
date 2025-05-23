@@ -8,7 +8,7 @@ import { Overlay } from './client/overlay'
 import { PasswordReset } from './client/password-reset'
 import { Server } from './client/server'
 import { Game } from './client/game'
-import { SceneEdit } from './client/game/scene-edit'
+import { SceneEdit } from './client/game/scene-edit/scene-edit'
 
 type UserData = {
     id?: string
@@ -99,14 +99,42 @@ window.addEventListener('contextmenu', (event: MouseEvent) => {
 
 window.zylSession.userData = window.ipcRenderer.sendSync('initial-data')
 
-export const listen = (channel: string, callback: ElectronCallback) => {
-    window.ipcRenderer.removeAllListeners(channel)
-    window.ipcRenderer.on(channel, callback)
+export const electron_listen = (channel: string, callback: ElectronCallback) => {
+    const mainWindow = (window.opener ?? window) as Window
+    mainWindow.ipcRenderer.removeAllListeners(channel)
+    mainWindow.ipcRenderer.on(channel, callback)
 }
 
-export const send_recieve = (channel: string, callback: ElectronCallback, ...args: any[]) => {
-    listen(`${channel}-callback`, callback)
-    window.ipcRenderer.send(channel, ...args)
+export const electron_send = (channel: string, ...args: any[]) => {
+    const mainWindow = (window.opener ?? window) as Window
+    mainWindow.ipcRenderer.send(channel, ...args)
+}
+
+export const electron_send_recieve = (
+    channel: string,
+    callback: ElectronCallback,
+    ...args: any[]
+) => {
+    electron_listen(`${channel}-callback`, callback)
+    electron_send(channel, ...args)
+}
+
+let WINDOW_LISTENERS: { type: string; callback: (...args: any[]) => void }[] = []
+export const window_listen = (type: string, callback: (...args: any[]) => void) => {
+    const mainWindow = (window.opener ?? window) as Window
+    const existing = WINDOW_LISTENERS.find((l) => l.type === type)
+    if (existing) {
+        mainWindow.removeEventListener(type, existing.callback)
+        WINDOW_LISTENERS = WINDOW_LISTENERS.filter((l) => l.type !== type)
+    }
+    window.addEventListener(type, callback)
+    WINDOW_LISTENERS.push({ type, callback })
+}
+
+export const window_dispatch = (type: string, data: any) => {
+    const mainWindow = (window.opener ?? window) as Window
+    const event = new CustomEvent(type, { detail: data })
+    mainWindow.dispatchEvent(event)
 }
 
 ReactDOM.createRoot(document.body).render(

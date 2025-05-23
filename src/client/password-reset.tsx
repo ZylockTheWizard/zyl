@@ -1,11 +1,10 @@
 import React from 'react'
 import { useNavigate } from 'react-router'
 import { SubmitHandler } from 'react-hook-form'
-import { Button, CircularProgress } from '@mui/material'
 import { PageFormWrapper } from './shared/page-form-wrapper'
 import { BuildFormComponents } from './shared/base-form'
-import { PRIMARY_VALIDATIONS } from './shared/validations'
-import { send_recieve } from '../app'
+import { DEFAULT_VALIDATIONS } from './shared/validations'
+import { electron_send_recieve } from '../app'
 
 type PasswordResetFieldValues = {
     newPassword: string
@@ -18,49 +17,41 @@ export const PasswordReset = () => {
     const navigate = useNavigate()
 
     const [errorMessage, setErrorMessage] = React.useState('')
-    const [loading, setLoading] = React.useState(false)
 
     const onSubmit: SubmitHandler<PasswordResetFieldValues> = (data: PasswordResetFieldValues) => {
         if (data.newPassword !== data.verifyPassword) {
             setErrorMessage('The passwords do not match')
             return
         }
-        setLoading(true)
         window.zylSession.userData = { password: data.newPassword }
         const user = window.zylSession.userData.id
         const password = window.zylSession.userData.password
-        const onPasswordResetCallback = (_event: any, val: any) => {
-            setLoading(false)
-
-            let error = ''
-            if (val.error) error = val.error
-            else navigate('/login')
-
-            setErrorMessage(error)
-        }
-        send_recieve('password-reset', onPasswordResetCallback, user, password)
+        return new Promise<void>((resolve) => {
+            const onPasswordResetCallback = (_event: any, val: any) => {
+                let error = ''
+                if (val.error) error = val.error
+                else navigate('/login')
+                setErrorMessage(error)
+                resolve()
+            }
+            electron_send_recieve('password-reset', onPasswordResetCallback, user, password)
+        })
     }
 
     return (
         <PageFormWrapper pageTitle="Password Reset">
-            <PasswordResetForm.Form
-                onSubmit={onSubmit}
-                loading={loading}
-                errorMessage={errorMessage}
-            >
+            <PasswordResetForm.Form onSubmit={onSubmit} errorMessage={errorMessage}>
                 <PasswordResetForm.TextField
                     type="password"
                     field="newPassword"
-                    validations={PRIMARY_VALIDATIONS}
+                    validations={DEFAULT_VALIDATIONS}
                 />
                 <PasswordResetForm.TextField
                     type="password"
                     field="verifyPassword"
-                    validations={PRIMARY_VALIDATIONS}
+                    validations={DEFAULT_VALIDATIONS}
                 />
-                <Button type="submit" fullWidth variant="contained" disabled={loading}>
-                    {loading ? <CircularProgress size={25} /> : 'Sign in'}
-                </Button>
+                <PasswordResetForm.SubmitButton label={'Sign In'} />
             </PasswordResetForm.Form>
         </PageFormWrapper>
     )

@@ -7,6 +7,11 @@ export type PageFormProps = {
 }
 
 export const PageFormWrapper: React.FC<PageFormProps> = (props) => {
+    const stackStyles: React.CSSProperties = {
+        height: '80%',
+        padding: '16px',
+        justifyContent: 'center',
+    }
     const cardStyles: React.CSSProperties = {
         gap: 20,
         width: '390px',
@@ -15,13 +20,6 @@ export const PageFormWrapper: React.FC<PageFormProps> = (props) => {
         alignSelf: 'center',
         flexDirection: 'column',
     }
-
-    const stackStyles: React.CSSProperties = {
-        height: '80%',
-        padding: '16px',
-        justifyContent: 'center',
-    }
-
     return (
         <Stack direction="column" justifyContent="space-between" style={stackStyles}>
             <Card style={cardStyles} variant="outlined">

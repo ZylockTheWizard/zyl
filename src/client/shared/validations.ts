@@ -32,7 +32,7 @@ export const buildValidations = <T extends FieldValues>(
     return registerOptions
 }
 
-export const PRIMARY_VALIDATIONS: Validations = {
+export const DEFAULT_VALIDATIONS: Validations = {
     required: true,
     maxLength: true,
 }

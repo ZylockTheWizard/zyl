@@ -3,18 +3,10 @@ import { SubmitHandler } from 'react-hook-form'
 import { BuildFormComponents } from '../../shared/base-form'
 import { Validations } from '../../shared/validations'
 import { areEqual, isMaster } from '../../shared/common-functions'
-import {
-    Button,
-    CircularProgress,
-    IconButton,
-    List,
-    ListItem,
-    ListItemText,
-    Typography,
-} from '@mui/material'
+import { IconButton, List, ListItem, ListItemText, Typography } from '@mui/material'
 import PersonAddIcon from '@mui/icons-material/PersonAdd'
 import { BaseModal } from '../../shared/base-modal'
-import { listen, send_recieve } from '../../../app'
+import { electron_listen, electron_send_recieve } from '../../../app'
 
 type UserModalProps = {
     id?: string
@@ -29,21 +21,20 @@ type UserModalFieldValues = {
 const UserForm = BuildFormComponents<UserModalFieldValues>()
 
 const UserModal = (props: UserModalProps) => {
-    const [loading, setLoading] = React.useState(false)
     const [errorMessage, setErrorMessage] = React.useState('')
 
     const onSubmit: SubmitHandler<UserModalFieldValues> = (data: UserModalFieldValues) => {
-        setLoading(true)
-        const userSaveCallback = (_event: any, val: any) => {
-            setLoading(false)
+        return new Promise<void>((resolve) => {
+            const userSaveCallback = (_event: any, val: any) => {
+                let error = ''
+                if (val.error) error = val.error
+                else props.setOpen(false)
 
-            let error = ''
-            if (val.error) error = val.error
-            else props.setOpen(false)
-
-            setErrorMessage(error)
-        }
-        send_recieve('user-save', userSaveCallback, data.id)
+                setErrorMessage(error)
+                resolve()
+            }
+            electron_send_recieve('user-save', userSaveCallback, data.id)
+        })
     }
 
     const user = props.id
@@ -64,7 +55,7 @@ const UserModal = (props: UserModalProps) => {
             <Typography variant="h6" component="h2" sx={{ mb: 2 }}>
                 {user?.id ? 'Edit' : 'New'} Player
             </Typography>
-            <UserForm.Form onSubmit={onSubmit} loading={loading} errorMessage={errorMessage}>
+            <UserForm.Form onSubmit={onSubmit} errorMessage={errorMessage}>
                 <UserForm.TextField
                     field="id"
                     label="ID"
@@ -72,9 +63,7 @@ const UserModal = (props: UserModalProps) => {
                     defaultValue={user?.id}
                     validations={idValidations}
                 />
-                <Button type="submit" fullWidth variant="contained" disabled={loading || user?.id}>
-                    {loading ? <CircularProgress size={25} /> : 'Save'}
-                </Button>
+                <UserForm.SubmitButton label={'Save'} disabled={user?.id} />
             </UserForm.Form>
         </BaseModal>
     )
@@ -86,7 +75,7 @@ export const UsersTab = () => {
 
     const [users, setUsers] = React.useState(window.zylSession.currentUsers)
 
-    listen('current-users', (_event: any, val: any) => {
+    electron_listen('current-users', (_event: any, val: any) => {
         window.zylSession.currentUsers = val.users
         setUsers(val.users)
     })

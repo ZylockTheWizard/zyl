@@ -1,10 +1,10 @@
 import React from 'react'
 import { Button, CircularProgress, Stack, Typography } from '@mui/material'
-import { listen } from '../app'
+import { electron_listen } from '../app'
 
 export const Overlay = () => {
     const [connected, setConnected] = React.useState(true)
-    listen('server-status', (_event: any, val: any) => {
+    electron_listen('server-status', (_event: any, val: any) => {
         if (val.status === 'connected') {
             setConnected(true)
         } else if (val.status === 'error') {
