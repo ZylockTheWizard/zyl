@@ -1,5 +1,4 @@
 import {
-    AbstractMesh,
     ArcRotateCamera,
     Color3,
     Color4,
@@ -9,7 +8,6 @@ import {
     IKeyboardEvent,
     KeyboardEventTypes,
     LoadSceneAsync,
-    Mesh,
     MeshBuilder,
     PointerEventTypes,
     PointerInfo,
@@ -73,7 +71,7 @@ const onSceneLoaded = (scene: Scene) => {
     const canvas = window.babylonEngine.getRenderingCanvas()
     setupCamera(scene, canvas)
 
-    const tokenGround = scene.meshes.find((m) => m.name === 'token-ground') as GroundMesh
+    const tokenGrounds = scene.meshes.filter((m) => m.name === 'token-ground') as GroundMesh[]
     const gridGround = scene.meshes.find((m) => m.name === 'grid-ground') as GroundMesh
     const mapGround = scene.meshes.find((m) => m.name === 'map-ground') as GroundMesh
     const gridMaterial = gridGround.material as GridMaterial
@@ -82,9 +80,6 @@ const onSceneLoaded = (scene: Scene) => {
         (l) => l.name === 'highlight-layer',
     ) as HighlightLayer
     highlightLayer.removeAllMeshes()
-
-    let tokenSelected: AbstractMesh
-    let grabStart: Vector3
 
     window_listen('scene-manage', (event: CustomEvent) => {
         const config: SceneConfig = event.detail
@@ -96,24 +91,39 @@ const onSceneLoaded = (scene: Scene) => {
         save()
     })
 
+    let grabStart: Vector3
+    let tokensSelected: GroundMesh[] = []
     const cursorPick = () => scene.pick(scene.pointerX, scene.pointerY)
+    const setTokenIndex = (token: GroundMesh, index: number) => {
+        token.position.y = index / 100
+        token.alphaIndex = index
+    }
 
     const onPointerDown = (pointerInfo: PointerInfo) => {
-        highlightLayer.removeAllMeshes()
-        const pickedMesh = pointerInfo.pickInfo.pickedMesh
-        if (pointerInfo.event.button === 0 && pickedMesh === tokenGround) {
-            tokenSelected = pickedMesh
+        const pickedMesh = pointerInfo.pickInfo.pickedMesh as GroundMesh
+        if (pointerInfo.event.button === 0 && tokenGrounds.includes(pickedMesh)) {
+            if (!tokensSelected.includes(pickedMesh)) {
+                if (pointerInfo.event.shiftKey) {
+                    tokensSelected.push(pickedMesh)
+                } else {
+                    tokensSelected = [pickedMesh]
+                    highlightLayer.removeAllMeshes()
+                }
+                tokenGrounds.forEach((token) => setTokenIndex(token, 2))
+                tokensSelected.forEach((token) => setTokenIndex(token, 3))
+            }
             grabStart = cursorPick().pickedPoint
-        } else {
-            tokenSelected = null
+        } else if (pointerInfo.event.button === 2) {
+            tokensSelected = []
+            highlightLayer.removeAllMeshes()
         }
     }
 
     const onPointerMove = () => {
-        const hoverMesh = cursorPick()?.pickedMesh
+        const hoverMesh = cursorPick()?.pickedMesh as GroundMesh
 
         let cursor = 'default'
-        if (hoverMesh === tokenGround) cursor = 'grab'
+        if (tokenGrounds.includes(hoverMesh)) cursor = 'grab'
         if (grabStart) cursor = 'grabbing'
         canvas.style.cursor = cursor
 
@@ -122,7 +132,7 @@ const onSceneLoaded = (scene: Scene) => {
         if (!current) return
         const diff = current.subtract(grabStart)
         diff.y = 0
-        tokenSelected.position.addInPlace(diff)
+        tokensSelected.forEach((token) => token.position.addInPlace(diff))
         grabStart = current
     }
 
@@ -133,13 +143,14 @@ const onSceneLoaded = (scene: Scene) => {
 
     const onPointerUp = () => {
         grabStart = null
-        if (tokenSelected) {
-            const pos = tokenSelected.position
-            pos.x = Math.round((pos.x + xOffset) / gridRatio) * gridRatio - xOffset
-            pos.z = Math.round((pos.z + zOffset) / gridRatio) * gridRatio - zOffset
-            tokenSelected.position = pos
-            highlightLayer.addMesh(tokenSelected as Mesh, Color3.Blue())
-
+        if (tokensSelected.length > 0) {
+            tokensSelected.forEach((token) => {
+                const pos = token.position
+                pos.x = Math.round((pos.x + xOffset) / gridRatio) * gridRatio - xOffset
+                pos.z = Math.round((pos.z + zOffset) / gridRatio) * gridRatio - zOffset
+                token.position = pos
+                highlightLayer.addMesh(token, Color3.Blue())
+            })
             save()
         }
     }
@@ -159,27 +170,27 @@ const onSceneLoaded = (scene: Scene) => {
     })
 
     const onKeyUp = (event: IKeyboardEvent) => {
-        if (tokenSelected) {
+        if (tokensSelected.length > 0) {
+            const saveMove = (move: (token: GroundMesh) => void) => {
+                tokensSelected.forEach(move)
+                save()
+            }
             switch (event.key) {
                 case 'ArrowUp':
                 case 'w':
-                    tokenSelected.position.z += gridRatio
-                    save()
+                    saveMove((token) => (token.position.z += gridRatio))
                     break
                 case 'ArrowDown':
                 case 's':
-                    tokenSelected.position.z -= gridRatio
-                    save()
+                    saveMove((token) => (token.position.z -= gridRatio))
                     break
                 case 'ArrowRight':
                 case 'd':
-                    tokenSelected.position.x += gridRatio
-                    save()
+                    saveMove((token) => (token.position.x += gridRatio))
                     break
                 case 'ArrowLeft':
                 case 'a':
-                    tokenSelected.position.x -= gridRatio
-                    save()
+                    saveMove((token) => (token.position.x -= gridRatio))
                     break
             }
         }
@@ -235,18 +246,32 @@ export const buildInitialScene = (config: SceneConfig) => {
     gridGround.position = new Vector3(0, 0.001, 0)
     gridGround.alphaIndex = 1
 
-    const tokenMaterial = new StandardMaterial('token-material', scene)
-    const tokenTexture = new Texture(`${window.zylSession.userData.url}/images/token1.png`, scene)
-    tokenMaterial.emissiveTexture = tokenTexture
-    tokenMaterial.opacityTexture = tokenTexture
-    const tokenGround = MeshBuilder.CreateGround(
-        'token-ground',
-        { width: gridMaterial.gridRatio, height: gridMaterial.gridRatio },
-        scene,
-    )
-    tokenGround.material = tokenMaterial
-    tokenGround.position = new Vector3(0, 0.002, 0)
-    tokenGround.alphaIndex = 2
+    const tokens = []
+    const buildToken = (id: string) => {
+        const index = tokens.length + 2
+        const tokenMaterial = new StandardMaterial('token-material', scene)
+        const tokenTexture = new Texture(
+            `${window.zylSession.userData.url}/images/token1.png`,
+            scene,
+        )
+        tokenMaterial.emissiveTexture = tokenTexture
+        tokenMaterial.opacityTexture = tokenTexture
+        const tokenGround = MeshBuilder.CreateGround(
+            'token-ground',
+            { width: gridMaterial.gridRatio, height: gridMaterial.gridRatio },
+            scene,
+        )
+        tokenGround.id = id
+        tokenGround.material = tokenMaterial
+        tokenGround.position = new Vector3(0, index / 100, 0)
+        tokenGround.alphaIndex = index
+
+        tokens.push(tokenGround)
+    }
+
+    buildToken('token1')
+    buildToken('token2')
+    buildToken('token3')
 
     new HighlightLayer('highlight-layer', scene, {
         isStroke: true,
