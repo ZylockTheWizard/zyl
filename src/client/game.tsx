@@ -3,11 +3,13 @@ import { Box, Drawer, Tab, Tabs } from '@mui/material'
 import SettingsIcon from '@mui/icons-material/Settings'
 import PersonIcon from '@mui/icons-material/Person'
 import LandscapeIcon from '@mui/icons-material/Landscape'
+import TokenIcon from '@mui/icons-material/Token'
 import { UsersTab } from './game/panel/users-tab'
 import { SettingsTab } from './game/panel/settings-tab'
 import { isMaster } from './shared/common-functions'
 import { ScenesTab } from './game/panel/scenes-tab'
 import { Scene } from './game/scene'
+import { TokensTab } from './game/panel/tokens-tab'
 
 interface TabPanelProps {
     children?: React.ReactNode
@@ -41,6 +43,7 @@ const GameTabs = () => {
             <Box sx={{ borderBottom: 1, borderColor: 'divider' }}>
                 <Tabs variant="fullWidth" value={tabValue} onChange={handleChange}>
                     <Tab value={0} icon={<PersonIcon />} title="Players" style={tabStyles} />
+                    <Tab value={3} icon={<TokenIcon />} title="Tokens" style={tabStyles} />
                     {isMaster() && (
                         <Tab value={1} icon={<LandscapeIcon />} title="Scenes" style={tabStyles} />
                     )}
@@ -49,6 +52,9 @@ const GameTabs = () => {
             </Box>
             <TabPanel value={tabValue} index={0}>
                 <UsersTab />
+            </TabPanel>
+            <TabPanel value={tabValue} index={3}>
+                <TokensTab />
             </TabPanel>
             {isMaster() && (
                 <TabPanel value={tabValue} index={1}>

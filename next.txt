@@ -1,0 +1,4 @@
+new token
+delete token
+delete map
+move user

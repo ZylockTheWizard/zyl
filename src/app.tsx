@@ -66,11 +66,20 @@ class ZylSession {
         return this._currentSceneId.get()
     }
 
+    private _currentTokens: ZylSessionEntry
+    public set currentTokens(data: any[]) {
+        this._currentTokens.set(data)
+    }
+    public get currentTokens() {
+        return this._currentTokens.get()
+    }
+
     constructor() {
         this._userData = new ZylSessionEntry('userData')
         this._currentUsers = new ZylSessionEntry('currentUsers')
         this._currentScenes = new ZylSessionEntry('currentScenes')
         this._currentSceneId = new ZylSessionEntry('currentSceneId')
+        this._currentTokens = new ZylSessionEntry('currentTokens')
     }
 }
 

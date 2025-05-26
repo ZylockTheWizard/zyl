@@ -31,6 +31,7 @@ export const Login = () => {
                         window.zylSession.currentUsers = val.result.users
                         window.zylSession.currentScenes = val.result.scenes
                         window.zylSession.currentSceneId = val.result.sceneId
+                        window.zylSession.currentTokens = val.result.tokens
                         navigate('/game')
                     }
                 }
