@@ -4,6 +4,7 @@
   "version": "1.0.0",
   "main": ".vite/build/main.js",
   "private": true,
+  "description": "This will eventually be a game",
   "scripts": {
     "start": "electron-forge start",
     "package": "electron-forge package",
